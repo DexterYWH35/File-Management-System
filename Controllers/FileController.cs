@@ -9,6 +9,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 [Authorize] // Only logged-in users can upload files
 public class FileController : Controller
@@ -98,7 +99,17 @@ public async Task<IActionResult> Download(int id)
         return RedirectToAction("Login", "Account");
     }
 
-    var file = _context.Files.FirstOrDefault(f => f.Id == id && f.UserId == user.Id);
+    var file = await _context.Files.FirstOrDefaultAsync(f => f.Id == id);
+    if (file == null)
+    {      
+        return NotFound("File not found.");
+    }
+
+    // Allow Admin to access all files
+    if (file.UserId != user.Id && !User.IsInRole("Admin"))
+    {
+        return Forbid(); // Return 403 Forbidden if user is not the owner or Admin
+    }
     if (file == null)
     {
         return NotFound("File not found or you do not have permission to download it.");
@@ -124,23 +135,46 @@ public async Task<IActionResult> Delete(int id)
         return RedirectToAction("Login", "Account");
     }
 
-    var file = _context.Files.FirstOrDefault(f => f.Id == id && f.UserId == user.Id);
+    var file = await _context.Files.FirstOrDefaultAsync(f => f.Id == id);
+if (file == null)
+{
+    return NotFound("File not found.");
+}
+
+// Allow Admin to delete any file
+if (file.UserId != user.Id && !User.IsInRole("Admin"))
+{
+    return Forbid(); // Return 403 Forbidden if user is not the owner or Admin
+}
+
+// Proceed with deletion
+var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", file.FilePath.TrimStart('/'));
+if (System.IO.File.Exists(filePath))
+{
+    System.IO.File.Delete(filePath);
+}
+
+_context.Files.Remove(file);
+await _context.SaveChangesAsync();
+return RedirectToAction("Index");
+
+
     if (file == null)
     {
         return NotFound("File not found or you do not have permission to delete it.");
     }
 
-    var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", file.FilePath.TrimStart('/'));
+    filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", file.FilePath.TrimStart('/'));
 
     if (System.IO.File.Exists(filePath))
     {
-        System.IO.File.Delete(filePath); // Delete the physical file
+        System.IO.File.Delete(filePath);
     }
 
-    _context.Files.Remove(file); // Remove file record from database
+    _context.Files.Remove(file); 
     await _context.SaveChangesAsync();
 
-    return RedirectToAction("Index"); // Redirect back to the file list
+    return RedirectToAction("Index"); 
 }
 
 [HttpGet]
@@ -189,8 +223,7 @@ public async Task<IActionResult> AdminDashboard()
 {
     var files = _context.Files
         .OrderByDescending(f => f.UploadDate)
-        .ToList();
-
+        .ToListAsync();
     return View(files);
 }
 
@@ -216,8 +249,8 @@ public async Task<IActionResult> Search(string searchTerm)
 }
 
 [Authorize(Roles = "Admin")]
-public IActionResult SearchAllFiles(string searchTerm)
-{
+    public async Task<IActionResult> SearchAllFiles(string searchTerm)
+    {
     var files = _context.Files.AsQueryable();
 
     if (!string.IsNullOrEmpty(searchTerm))
@@ -225,9 +258,10 @@ public IActionResult SearchAllFiles(string searchTerm)
         files = files.Where(f => f.FileName.Contains(searchTerm));
     }
 
-    var sortedFiles = files.OrderByDescending(f => f.UploadDate).ToList();
+    var sortedFiles = await files.OrderByDescending(f => f.UploadDate).ToListAsync();
 
     return View("AdminDashboard", sortedFiles);
-}
+    }
+
 }
 
