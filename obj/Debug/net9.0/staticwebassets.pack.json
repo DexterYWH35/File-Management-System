@@ -257,20 +257,8 @@
       "PackagePath": "staticwebassets/lib/jquery/dist/jquery.slim.min.map"
     },
     {
-      "Id": "/Users/dexteryap/C#/FileManagementSystem/wwwroot/uploads/IOT_Logo.png",
-      "PackagePath": "staticwebassets/uploads/IOT_Logo.png"
-    },
-    {
       "Id": "/Users/dexteryap/C#/FileManagementSystem/wwwroot/uploads/Supra.JPG",
       "PackagePath": "staticwebassets/uploads/Supra.JPG"
-    },
-    {
-      "Id": "/Users/dexteryap/C#/FileManagementSystem/wwwroot/uploads/UCSI-malaysia-collected.png",
-      "PackagePath": "staticwebassets/uploads/UCSI-malaysia-collected.png"
-    },
-    {
-      "Id": "/Users/dexteryap/C#/FileManagementSystem/wwwroot/uploads/Wallpaper_1.jpg",
-      "PackagePath": "staticwebassets/uploads/Wallpaper_1.jpg"
     },
     {
       "Id": "/Users/dexteryap/C#/FileManagementSystem/wwwroot/uploads/facial-recognition-line-multi-circle-icon-vector.jpg",

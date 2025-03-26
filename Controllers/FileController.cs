@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.AspNetCore.Authorization;
 using System;
 using System.IO;
@@ -186,7 +187,12 @@ public async Task<IActionResult> Preview(int id)
         return RedirectToAction("Login", "Account");
     }
 
-    var file = _context.Files.FirstOrDefault(f => f.Id == id && f.UserId == user.Id);
+     bool isAdmin = await _userManager.IsInRoleAsync(user, "Admin");
+
+    var file = isAdmin 
+        ? _context.Files.FirstOrDefault(f => f.Id == id) 
+        : _context.Files.FirstOrDefault(f => f.Id == id && f.UserId == user.Id);
+
     if (file == null)
     {
         return NotFound("File not found or you do not have permission to preview it.");
@@ -223,7 +229,7 @@ public async Task<IActionResult> AdminDashboard()
 {
     var files = _context.Files
         .OrderByDescending(f => f.UploadDate)
-        .ToListAsync();
+        .ToList();
     return View(files);
 }
 
@@ -235,12 +241,13 @@ public async Task<IActionResult> Search(string searchTerm)
     {
         return RedirectToAction("Login", "Account");
     }
+    string normalizedSearchTerm = searchTerm?.ToLower().Replace(" ", "") ?? "";
 
     var files = _context.Files.Where(f => f.UserId == user.Id);
 
     if (!string.IsNullOrEmpty(searchTerm))
     {
-        files = files.Where(f => f.FileName.Contains(searchTerm));
+        files = files.Where(f => f.FileName.Contains(normalizedSearchTerm));
     }
 
     var sortedFiles = files.OrderByDescending(f => f.UploadDate).ToList();
@@ -253,15 +260,18 @@ public async Task<IActionResult> Search(string searchTerm)
     {
     var files = _context.Files.AsQueryable();
 
+    string normalizedSearchTerm = searchTerm?.ToLower().Replace(" ", "") ?? "";
+
     if (!string.IsNullOrEmpty(searchTerm))
     {
-        files = files.Where(f => f.FileName.Contains(searchTerm));
+        files = files.Where(f => f.FileName.Contains(normalizedSearchTerm));
     }
 
     var sortedFiles = await files.OrderByDescending(f => f.UploadDate).ToListAsync();
 
     return View("AdminDashboard", sortedFiles);
     }
+
 
 }
 

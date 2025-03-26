@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "NPab0Kz56l/z433dRIZWTatUG+vUrhnUdNxJgc7aSHU=",
+  "Hash": "jJr6cGeoTLbTUsBM1mwfQk2++XshdWMD5CD7fCwvT4g=",
   "Source": "FileManagementSystem",
   "BasePath": "_content/FileManagementSystem",
   "Mode": "Default",
@@ -5372,27 +5372,6 @@
       "OriginalItemSpec": "wwwroot/uploads/facial-recognition-line-multi-circle-icon-vector.jpg"
     },
     {
-      "Identity": "/Users/dexteryap/C#/FileManagementSystem/wwwroot/uploads/IOT_Logo.png",
-      "SourceId": "FileManagementSystem",
-      "SourceType": "Discovered",
-      "ContentRoot": "/Users/dexteryap/C#/FileManagementSystem/wwwroot/",
-      "BasePath": "_content/FileManagementSystem",
-      "RelativePath": "uploads/IOT_Logo#[.{fingerprint}]?.png",
-      "AssetKind": "All",
-      "AssetMode": "All",
-      "AssetRole": "Primary",
-      "AssetMergeBehavior": "",
-      "AssetMergeSource": "",
-      "RelatedAsset": "",
-      "AssetTraitName": "",
-      "AssetTraitValue": "",
-      "Fingerprint": "7gb3dkwpnr",
-      "Integrity": "SWZiYxReKmvx71HAiSdq7o0kBbrz6TRWYRqcItc/Lr0=",
-      "CopyToOutputDirectory": "Never",
-      "CopyToPublishDirectory": "PreserveNewest",
-      "OriginalItemSpec": "wwwroot/uploads/IOT_Logo.png"
-    },
-    {
       "Identity": "/Users/dexteryap/C#/FileManagementSystem/wwwroot/uploads/Supra.JPG",
       "SourceId": "FileManagementSystem",
       "SourceType": "Discovered",
@@ -5414,27 +5393,6 @@
       "OriginalItemSpec": "wwwroot/uploads/Supra.JPG"
     },
     {
-      "Identity": "/Users/dexteryap/C#/FileManagementSystem/wwwroot/uploads/UCSI-malaysia-collected.png",
-      "SourceId": "FileManagementSystem",
-      "SourceType": "Discovered",
-      "ContentRoot": "/Users/dexteryap/C#/FileManagementSystem/wwwroot/",
-      "BasePath": "_content/FileManagementSystem",
-      "RelativePath": "uploads/UCSI-malaysia-collected#[.{fingerprint}]?.png",
-      "AssetKind": "All",
-      "AssetMode": "All",
-      "AssetRole": "Primary",
-      "AssetMergeBehavior": "",
-      "AssetMergeSource": "",
-      "RelatedAsset": "",
-      "AssetTraitName": "",
-      "AssetTraitValue": "",
-      "Fingerprint": "nngwvvc8m4",
-      "Integrity": "rciXN60a0IiqT43wo/U8A1AhTTsmiK3cgJANG6eEiww=",
-      "CopyToOutputDirectory": "Never",
-      "CopyToPublishDirectory": "PreserveNewest",
-      "OriginalItemSpec": "wwwroot/uploads/UCSI-malaysia-collected.png"
-    },
-    {
       "Identity": "/Users/dexteryap/C#/FileManagementSystem/wwwroot/uploads/ucsi-university-logo.620cbf39270cd.png",
       "SourceId": "FileManagementSystem",
       "SourceType": "Discovered",
@@ -5454,27 +5412,6 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot/uploads/ucsi-university-logo.620cbf39270cd.png"
-    },
-    {
-      "Identity": "/Users/dexteryap/C#/FileManagementSystem/wwwroot/uploads/Wallpaper_1.jpg",
-      "SourceId": "FileManagementSystem",
-      "SourceType": "Discovered",
-      "ContentRoot": "/Users/dexteryap/C#/FileManagementSystem/wwwroot/",
-      "BasePath": "_content/FileManagementSystem",
-      "RelativePath": "uploads/Wallpaper_1#[.{fingerprint}]?.jpg",
-      "AssetKind": "All",
-      "AssetMode": "All",
-      "AssetRole": "Primary",
-      "AssetMergeBehavior": "",
-      "AssetMergeSource": "",
-      "RelatedAsset": "",
-      "AssetTraitName": "",
-      "AssetTraitValue": "",
-      "Fingerprint": "ftwttdj0rz",
-      "Integrity": "nfODo4XfZUDrwTsGCpy1Rzp0fNGWwupRb0NOfMBKd/k=",
-      "CopyToOutputDirectory": "Never",
-      "CopyToPublishDirectory": "PreserveNewest",
-      "OriginalItemSpec": "wwwroot/uploads/Wallpaper_1.jpg"
     }
   ],
   "Endpoints": [
@@ -35577,88 +35514,6 @@
       ]
     },
     {
-      "Route": "uploads/IOT_Logo.7gb3dkwpnr.png",
-      "AssetFile": "/Users/dexteryap/C#/FileManagementSystem/wwwroot/uploads/IOT_Logo.png",
-      "Selectors": [],
-      "ResponseHeaders": [
-        {
-          "Name": "Accept-Ranges",
-          "Value": "bytes"
-        },
-        {
-          "Name": "Content-Length",
-          "Value": "24457"
-        },
-        {
-          "Name": "Content-Type",
-          "Value": "image/png"
-        },
-        {
-          "Name": "ETag",
-          "Value": "\"SWZiYxReKmvx71HAiSdq7o0kBbrz6TRWYRqcItc/Lr0=\""
-        },
-        {
-          "Name": "Last-Modified",
-          "Value": "Wed, 26 Mar 2025 02:08:35 GMT"
-        },
-        {
-          "Name": "Cache-Control",
-          "Value": "max-age=31536000, immutable"
-        }
-      ],
-      "EndpointProperties": [
-        {
-          "Name": "fingerprint",
-          "Value": "7gb3dkwpnr"
-        },
-        {
-          "Name": "label",
-          "Value": "uploads/IOT_Logo.png"
-        },
-        {
-          "Name": "integrity",
-          "Value": "sha256-SWZiYxReKmvx71HAiSdq7o0kBbrz6TRWYRqcItc/Lr0="
-        }
-      ]
-    },
-    {
-      "Route": "uploads/IOT_Logo.png",
-      "AssetFile": "/Users/dexteryap/C#/FileManagementSystem/wwwroot/uploads/IOT_Logo.png",
-      "Selectors": [],
-      "ResponseHeaders": [
-        {
-          "Name": "Accept-Ranges",
-          "Value": "bytes"
-        },
-        {
-          "Name": "Content-Length",
-          "Value": "24457"
-        },
-        {
-          "Name": "Content-Type",
-          "Value": "image/png"
-        },
-        {
-          "Name": "ETag",
-          "Value": "\"SWZiYxReKmvx71HAiSdq7o0kBbrz6TRWYRqcItc/Lr0=\""
-        },
-        {
-          "Name": "Last-Modified",
-          "Value": "Wed, 26 Mar 2025 02:08:35 GMT"
-        },
-        {
-          "Name": "Cache-Control",
-          "Value": "max-age=3600, must-revalidate"
-        }
-      ],
-      "EndpointProperties": [
-        {
-          "Name": "integrity",
-          "Value": "sha256-SWZiYxReKmvx71HAiSdq7o0kBbrz6TRWYRqcItc/Lr0="
-        }
-      ]
-    },
-    {
       "Route": "uploads/Supra.JPG",
       "AssetFile": "/Users/dexteryap/C#/FileManagementSystem/wwwroot/uploads/Supra.JPG",
       "Selectors": [],
@@ -35741,88 +35596,6 @@
       ]
     },
     {
-      "Route": "uploads/UCSI-malaysia-collected.nngwvvc8m4.png",
-      "AssetFile": "/Users/dexteryap/C#/FileManagementSystem/wwwroot/uploads/UCSI-malaysia-collected.png",
-      "Selectors": [],
-      "ResponseHeaders": [
-        {
-          "Name": "Accept-Ranges",
-          "Value": "bytes"
-        },
-        {
-          "Name": "Content-Length",
-          "Value": "435128"
-        },
-        {
-          "Name": "Content-Type",
-          "Value": "image/png"
-        },
-        {
-          "Name": "ETag",
-          "Value": "\"rciXN60a0IiqT43wo/U8A1AhTTsmiK3cgJANG6eEiww=\""
-        },
-        {
-          "Name": "Last-Modified",
-          "Value": "Wed, 26 Mar 2025 02:08:35 GMT"
-        },
-        {
-          "Name": "Cache-Control",
-          "Value": "max-age=31536000, immutable"
-        }
-      ],
-      "EndpointProperties": [
-        {
-          "Name": "fingerprint",
-          "Value": "nngwvvc8m4"
-        },
-        {
-          "Name": "label",
-          "Value": "uploads/UCSI-malaysia-collected.png"
-        },
-        {
-          "Name": "integrity",
-          "Value": "sha256-rciXN60a0IiqT43wo/U8A1AhTTsmiK3cgJANG6eEiww="
-        }
-      ]
-    },
-    {
-      "Route": "uploads/UCSI-malaysia-collected.png",
-      "AssetFile": "/Users/dexteryap/C#/FileManagementSystem/wwwroot/uploads/UCSI-malaysia-collected.png",
-      "Selectors": [],
-      "ResponseHeaders": [
-        {
-          "Name": "Accept-Ranges",
-          "Value": "bytes"
-        },
-        {
-          "Name": "Content-Length",
-          "Value": "435128"
-        },
-        {
-          "Name": "Content-Type",
-          "Value": "image/png"
-        },
-        {
-          "Name": "ETag",
-          "Value": "\"rciXN60a0IiqT43wo/U8A1AhTTsmiK3cgJANG6eEiww=\""
-        },
-        {
-          "Name": "Last-Modified",
-          "Value": "Wed, 26 Mar 2025 02:08:35 GMT"
-        },
-        {
-          "Name": "Cache-Control",
-          "Value": "max-age=3600, must-revalidate"
-        }
-      ],
-      "EndpointProperties": [
-        {
-          "Name": "integrity",
-          "Value": "sha256-rciXN60a0IiqT43wo/U8A1AhTTsmiK3cgJANG6eEiww="
-        }
-      ]
-    },
-    {
       "Route": "uploads/ucsi-university-logo.620cbf39270cd.png",
       "AssetFile": "/Users/dexteryap/C#/FileManagementSystem/wwwroot/uploads/ucsi-university-logo.620cbf39270cd.png",
       "Selectors": [],
@@ -35901,88 +35674,6 @@
         {
           "Name": "integrity",
           "Value": "sha256-eaYoR9qf+ktm7coHgjqKCgU+kSJp0dHbTTZcOtQDjnA="
-        }
-      ]
-    },
-    {
-      "Route": "uploads/Wallpaper_1.ftwttdj0rz.jpg",
-      "AssetFile": "/Users/dexteryap/C#/FileManagementSystem/wwwroot/uploads/Wallpaper_1.jpg",
-      "Selectors": [],
-      "ResponseHeaders": [
-        {
-          "Name": "Accept-Ranges",
-          "Value": "bytes"
-        },
-        {
-          "Name": "Content-Length",
-          "Value": "184981"
-        },
-        {
-          "Name": "Content-Type",
-          "Value": "image/jpeg"
-        },
-        {
-          "Name": "ETag",
-          "Value": "\"nfODo4XfZUDrwTsGCpy1Rzp0fNGWwupRb0NOfMBKd/k=\""
-        },
-        {
-          "Name": "Last-Modified",
-          "Value": "Wed, 26 Mar 2025 02:08:35 GMT"
-        },
-        {
-          "Name": "Cache-Control",
-          "Value": "max-age=31536000, immutable"
-        }
-      ],
-      "EndpointProperties": [
-        {
-          "Name": "fingerprint",
-          "Value": "ftwttdj0rz"
-        },
-        {
-          "Name": "label",
-          "Value": "uploads/Wallpaper_1.jpg"
-        },
-        {
-          "Name": "integrity",
-          "Value": "sha256-nfODo4XfZUDrwTsGCpy1Rzp0fNGWwupRb0NOfMBKd/k="
-        }
-      ]
-    },
-    {
-      "Route": "uploads/Wallpaper_1.jpg",
-      "AssetFile": "/Users/dexteryap/C#/FileManagementSystem/wwwroot/uploads/Wallpaper_1.jpg",
-      "Selectors": [],
-      "ResponseHeaders": [
-        {
-          "Name": "Accept-Ranges",
-          "Value": "bytes"
-        },
-        {
-          "Name": "Content-Length",
-          "Value": "184981"
-        },
-        {
-          "Name": "Content-Type",
-          "Value": "image/jpeg"
-        },
-        {
-          "Name": "ETag",
-          "Value": "\"nfODo4XfZUDrwTsGCpy1Rzp0fNGWwupRb0NOfMBKd/k=\""
-        },
-        {
-          "Name": "Last-Modified",
-          "Value": "Wed, 26 Mar 2025 02:08:35 GMT"
-        },
-        {
-          "Name": "Cache-Control",
-          "Value": "max-age=3600, must-revalidate"
-        }
-      ],
-      "EndpointProperties": [
-        {
-          "Name": "integrity",
-          "Value": "sha256-nfODo4XfZUDrwTsGCpy1Rzp0fNGWwupRb0NOfMBKd/k="
         }
       ]
     }
