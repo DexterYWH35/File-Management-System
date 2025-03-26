@@ -1,0 +1,43 @@
+@{
+    ViewData["Title"] = "File Preview";
+    string filePath = ViewData["FilePath"] as string;
+    string fileType = ViewData["FileType"] as string;
+    string fullFilePath = "https://localhost:5001" + filePath; // Adjust URL for local testing
+}
+
+<h2>File Preview</h2>
+
+<div class="preview-container">
+@if (fileType == "image")
+{
+    <img src="@filePath" class="img-fluid" alt="Preview Image" />
+}
+else if (fileType == "pdf")
+{
+    <embed src="@filePath" type="application/pdf" width="100%" height="600px" />
+}
+else if (fileType == "video")
+{
+    <video controls width="100%">
+        <source src="@filePath" type="video/mp4" />
+        Your browser does not support the video tag.
+    </video>
+}
+else if (fileType == "audio")
+{
+    <audio controls>
+        <source src="@filePath" type="audio/mpeg" />
+        Your browser does not support the audio element.
+    </audio>
+}
+else if (fileType == "document")
+{
+    <iframe src="https://docs.google.com/gview?url=@fullFilePath&embedded=true" width="100%" height="600px"></iframe>
+}
+else
+{
+    <p class="text-danger">Preview not available for this file type.</p>
+}
+</div>
+
+<a asp-controller="File" asp-action="Download" asp-route-id="@ViewData["FileId"]" class="btn btn-primary mt-3">Download</a>

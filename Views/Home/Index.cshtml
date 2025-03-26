@@ -1,0 +1,32 @@
+﻿@{
+    ViewData["Title"] = "Home - File Management System";
+}
+
+<div class="container text-center">
+    <h1 class="mt-5">Welcome to the File Management System</h1>
+    <p class="lead">Easily upload, manage, and organize your files with secure access control.</p>
+
+    <div class="row mt-4">
+        <div class="col-md-4">
+            <div class="card shadow p-3">
+                <h4>Upload Files</h4>
+                <p>Securely upload your files to the system with ease.</p>
+                <a asp-controller="File" asp-action="Upload" class="btn btn-primary">Upload Now</a>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow p-3">
+                <h4>Manage Files</h4>
+                <p>View, rename, and delete your uploaded files anytime.</p>
+                <a asp-controller="File" asp-action="Index" class="btn btn-info">Manage Files</a>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow p-3">
+                <h4>User Profile</h4>
+                <p>Update and view your profile information anytime this page.</p>
+                <a asp-controller="Profile" asp-action="Index" class="btn btn-warning">View Profile</a>
+            </div>
+        </div>
+    </div>
+</div>

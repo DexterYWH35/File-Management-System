@@ -1,0 +1,9 @@
+/Users/dexteryap/C#/FileManagementSystem/obj/Debug/net8.0/FileManagementSystem.csproj.AssemblyReference.cache
+/Users/dexteryap/C#/FileManagementSystem/obj/Debug/net8.0/FileManagementSystem.GeneratedMSBuildEditorConfig.editorconfig
+/Users/dexteryap/C#/FileManagementSystem/obj/Debug/net8.0/FileManagementSystem.AssemblyInfoInputs.cache
+/Users/dexteryap/C#/FileManagementSystem/obj/Debug/net8.0/FileManagementSystem.AssemblyInfo.cs
+/Users/dexteryap/C#/FileManagementSystem/obj/Debug/net8.0/FileManagementSystem.csproj.CoreCompileInputs.cache
+/Users/dexteryap/C#/FileManagementSystem/obj/Debug/net8.0/FileManagementSystem.MvcApplicationPartsAssemblyInfo.cs
+/Users/dexteryap/C#/FileManagementSystem/obj/Debug/net8.0/FileManagementSystem.MvcApplicationPartsAssemblyInfo.cache
+/Users/dexteryap/C#/FileManagementSystem/obj/Debug/net8.0/FileManagementSystem.RazorAssemblyInfo.cache
+/Users/dexteryap/C#/FileManagementSystem/obj/Debug/net8.0/FileManagementSystem.RazorAssemblyInfo.cs
