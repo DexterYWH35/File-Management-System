@@ -54,3 +54,9 @@ Ensure you have the following installed:
 2. Add file sharing functionality
 
 3. Implement an advanced search feature
+
+
+# Remarks
+1. Change Program.cs make sure listening to http://0.0.0.0:5000
+2. Change the appsetting.json, make sure pointing to the right database (under/var/www/projectFolder)
+3. Run the code using "dotnet run" at project folder. X inside publish folder.

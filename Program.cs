@@ -91,4 +91,4 @@ using (var scope = app.Services.CreateScope())
 }
 // Ensures the Admin role and user exist when the application starts.
 
-app.Run();
+app.Run(); //change this to listen on all port http://0.0.0.0:5000
