@@ -54,8 +54,8 @@ public async Task<IActionResult> Login(LoginViewModel model)
     }
     else
     {
-        Console.WriteLine("Login failed. Invalid email or password.");
-        ModelState.AddModelError("", "Invalid email or password.");
+        Console.WriteLine("Login failed. Invalid userName or password.");
+        ModelState.AddModelError("", "Invalid userName or password.");
     }
      ViewData["HideLoginButton"] = "true"; 
     return View();

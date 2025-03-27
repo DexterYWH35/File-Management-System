@@ -227,9 +227,18 @@ public async Task<IActionResult> Preview(int id)
 [Authorize(Roles = "Admin")]
 public async Task<IActionResult> AdminDashboard()
 {
-    var files = _context.Files
-        .OrderByDescending(f => f.UploadDate)
-        .ToList();
+ var files = await (from f in _context.Files
+                       join u in _context.Users on f.UserId equals u.Id
+                       orderby f.UploadDate descending
+                       select new FileModel
+                       {
+                           Id = f.Id,
+                           FileName = f.FileName,
+                           UserId = f.UserId,
+                           UserName = u.UserName, 
+                           UploadDate = f.UploadDate
+                       }).ToListAsync();
+
     return View(files);
 }
 
