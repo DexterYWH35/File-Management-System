@@ -34,6 +34,7 @@
                     <a asp-controller="File" asp-action="Preview" asp-route-id="@file.Id" class="btn btn-warning btn-sm">Preview</a>
                     <form asp-controller="File" asp-action="Delete" method="post" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this file?');">
                         <input type="hidden" name="id" value="@file.Id" />
+                        <input type="hidden" name="returnUrl" value="AdminDashboard" />
                         <button type="submit" class="btn btn-danger btn-sm">Delete</button>
                     </form>
                 </td>

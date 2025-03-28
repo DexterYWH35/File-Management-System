@@ -27416,7 +27416,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Fri, 28 Mar 2025 03:54:23 GMT"
+          "Value": "Fri, 28 Mar 2025 06:32:57 GMT"
         }
       ],
       "EndpointProperties": [
@@ -27453,7 +27453,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Fri, 28 Mar 2025 03:54:23 GMT"
+          "Value": "Fri, 28 Mar 2025 06:32:57 GMT"
         }
       ],
       "EndpointProperties": [
@@ -27468,170 +27468,6 @@
         {
           "Name": "label",
           "Value": "uploads/Supra.JPG"
-        }
-      ]
-    },
-    {
-      "Route": "uploads/facial-recognition-line-multi-circle-icon-vector.jpg",
-      "AssetFile": "uploads/facial-recognition-line-multi-circle-icon-vector.jpg",
-      "Selectors": [],
-      "ResponseHeaders": [
-        {
-          "Name": "Accept-Ranges",
-          "Value": "bytes"
-        },
-        {
-          "Name": "Cache-Control",
-          "Value": "max-age=3600, must-revalidate"
-        },
-        {
-          "Name": "Content-Length",
-          "Value": "34728"
-        },
-        {
-          "Name": "Content-Type",
-          "Value": "image/jpeg"
-        },
-        {
-          "Name": "ETag",
-          "Value": "\"o6HGPDY72iInmWmbv5O1jyc/JrMVxJXGDM5mxXu4Hio=\""
-        },
-        {
-          "Name": "Last-Modified",
-          "Value": "Fri, 28 Mar 2025 03:54:23 GMT"
-        }
-      ],
-      "EndpointProperties": [
-        {
-          "Name": "integrity",
-          "Value": "sha256-o6HGPDY72iInmWmbv5O1jyc/JrMVxJXGDM5mxXu4Hio="
-        }
-      ]
-    },
-    {
-      "Route": "uploads/facial-recognition-line-multi-circle-icon-vector.zs1aiuzr73.jpg",
-      "AssetFile": "uploads/facial-recognition-line-multi-circle-icon-vector.jpg",
-      "Selectors": [],
-      "ResponseHeaders": [
-        {
-          "Name": "Accept-Ranges",
-          "Value": "bytes"
-        },
-        {
-          "Name": "Cache-Control",
-          "Value": "max-age=31536000, immutable"
-        },
-        {
-          "Name": "Content-Length",
-          "Value": "34728"
-        },
-        {
-          "Name": "Content-Type",
-          "Value": "image/jpeg"
-        },
-        {
-          "Name": "ETag",
-          "Value": "\"o6HGPDY72iInmWmbv5O1jyc/JrMVxJXGDM5mxXu4Hio=\""
-        },
-        {
-          "Name": "Last-Modified",
-          "Value": "Fri, 28 Mar 2025 03:54:23 GMT"
-        }
-      ],
-      "EndpointProperties": [
-        {
-          "Name": "fingerprint",
-          "Value": "zs1aiuzr73"
-        },
-        {
-          "Name": "integrity",
-          "Value": "sha256-o6HGPDY72iInmWmbv5O1jyc/JrMVxJXGDM5mxXu4Hio="
-        },
-        {
-          "Name": "label",
-          "Value": "uploads/facial-recognition-line-multi-circle-icon-vector.jpg"
-        }
-      ]
-    },
-    {
-      "Route": "uploads/memeCat1.jpeg",
-      "AssetFile": "uploads/memeCat1.jpeg",
-      "Selectors": [],
-      "ResponseHeaders": [
-        {
-          "Name": "Accept-Ranges",
-          "Value": "bytes"
-        },
-        {
-          "Name": "Cache-Control",
-          "Value": "max-age=3600, must-revalidate"
-        },
-        {
-          "Name": "Content-Length",
-          "Value": "4313"
-        },
-        {
-          "Name": "Content-Type",
-          "Value": "image/jpeg"
-        },
-        {
-          "Name": "ETag",
-          "Value": "\"lZ3v8wHgtmkrkI4lsO3VxKPLi4WcEW5tx6rmj3i5e7Q=\""
-        },
-        {
-          "Name": "Last-Modified",
-          "Value": "Fri, 28 Mar 2025 05:45:21 GMT"
-        }
-      ],
-      "EndpointProperties": [
-        {
-          "Name": "integrity",
-          "Value": "sha256-lZ3v8wHgtmkrkI4lsO3VxKPLi4WcEW5tx6rmj3i5e7Q="
-        }
-      ]
-    },
-    {
-      "Route": "uploads/memeCat1.ti3nwbshe8.jpeg",
-      "AssetFile": "uploads/memeCat1.jpeg",
-      "Selectors": [],
-      "ResponseHeaders": [
-        {
-          "Name": "Accept-Ranges",
-          "Value": "bytes"
-        },
-        {
-          "Name": "Cache-Control",
-          "Value": "max-age=31536000, immutable"
-        },
-        {
-          "Name": "Content-Length",
-          "Value": "4313"
-        },
-        {
-          "Name": "Content-Type",
-          "Value": "image/jpeg"
-        },
-        {
-          "Name": "ETag",
-          "Value": "\"lZ3v8wHgtmkrkI4lsO3VxKPLi4WcEW5tx6rmj3i5e7Q=\""
-        },
-        {
-          "Name": "Last-Modified",
-          "Value": "Fri, 28 Mar 2025 05:45:21 GMT"
-        }
-      ],
-      "EndpointProperties": [
-        {
-          "Name": "fingerprint",
-          "Value": "ti3nwbshe8"
-        },
-        {
-          "Name": "integrity",
-          "Value": "sha256-lZ3v8wHgtmkrkI4lsO3VxKPLi4WcEW5tx6rmj3i5e7Q="
-        },
-        {
-          "Name": "label",
-          "Value": "uploads/memeCat1.jpeg"
         }
       ]
     },

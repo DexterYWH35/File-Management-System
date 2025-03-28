@@ -128,7 +128,7 @@ public async Task<IActionResult> Download(int id)
 }
 
 [HttpPost]
-public async Task<IActionResult> Delete(int id)
+public async Task<IActionResult> Delete(int id, string? returnURl = null)
 {
     var user = await _userManager.GetUserAsync(User);
     if (user == null)
@@ -157,25 +157,14 @@ if (System.IO.File.Exists(filePath))
 
 _context.Files.Remove(file);
 await _context.SaveChangesAsync();
-return RedirectToAction("Index");
 
-
-    if (file == null)
+    // ✅ Stay on Admin Dashboard if an Admin deletes a file at admindashboard
+    if (User.IsInRole("Admin") && returnURl == "AdminDashboard")
     {
-        return NotFound("File not found or you do not have permission to delete it.");
+        return RedirectToAction("AdminDashboard", "File");
     }
+return RedirectToAction("Index", "File");
 
-    filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", file.FilePath.TrimStart('/'));
-
-    if (System.IO.File.Exists(filePath))
-    {
-        System.IO.File.Delete(filePath);
-    }
-
-    _context.Files.Remove(file); 
-    await _context.SaveChangesAsync();
-
-    return RedirectToAction("Index"); 
 }
 
 [HttpGet]
@@ -267,16 +256,29 @@ public async Task<IActionResult> Search(string searchTerm)
 [Authorize(Roles = "Admin")]
     public async Task<IActionResult> SearchAllFiles(string searchTerm)
     {
-    var files = _context.Files.AsQueryable();
+   var query = from f in _context.Files
+                join u in _context.Users on f.UserId equals u.Id into userGroup
+                from u in userGroup.DefaultIfEmpty()
+                select new FileViewModel
+                {
+                    Id = f.Id,
+                    FileName = f.FileName,
+                    UserId = f.UserId,
+                    UserName = u != null ? u.UserName : "Unknown User",
+                    UploadDate = f.UploadDate
+                };
 
     string normalizedSearchTerm = searchTerm?.ToLower().Replace(" ", "") ?? "";
 
     if (!string.IsNullOrEmpty(searchTerm))
     {
-        files = files.Where(f => f.FileName.Contains(normalizedSearchTerm));
+        query = query.Where(f => f.FileName.Contains(normalizedSearchTerm));
+        string lowerSearchTerm = searchTerm.ToLower();
+        query = query.Where(f => f.FileName.ToLower().Contains(lowerSearchTerm) || 
+                                 f.UserName.ToLower().Contains(lowerSearchTerm));
     }
 
-    var sortedFiles = await files.OrderByDescending(f => f.UploadDate).ToListAsync();
+    var sortedFiles = await query.OrderByDescending(f => f.UploadDate).ToListAsync();
 
     return View("AdminDashboard", sortedFiles);
     }
