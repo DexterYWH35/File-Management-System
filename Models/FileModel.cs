@@ -17,9 +17,16 @@ namespace FileManagementSystem.Models
         public string UserId { get; set; }
 
         [Required]
-         public string UserName { get; set; }
-
-        [Required]
         public DateTime UploadDate { get; set; } = DateTime.UtcNow;
     }
+
+    public class FileViewModel
+{
+    public int Id { get; set; }
+    public string FileName { get; set; }
+    public string UserId { get; set; } 
+    public string UserName { get; set; } // This is from AspNetUsers
+    public DateTime UploadDate { get; set; }
+}
+
 }

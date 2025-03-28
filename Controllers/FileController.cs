@@ -230,12 +230,12 @@ public async Task<IActionResult> AdminDashboard()
  var files = await (from f in _context.Files
                        join u in _context.Users on f.UserId equals u.Id
                        orderby f.UploadDate descending
-                       select new FileModel
+                       select new FileViewModel
                        {
                            Id = f.Id,
                            FileName = f.FileName,
                            UserId = f.UserId,
-                           UserName = u.UserName, 
+                           UserName = u.UserName,
                            UploadDate = f.UploadDate
                        }).ToListAsync();
 

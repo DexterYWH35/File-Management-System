@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "/Users/dexteryap/C#/FileManagementSystem/FileManagementSystem.csproj": {}
+    "/Users/dexteryap/C#/File-Management-System/FileManagementSystem.csproj": {}
   },
   "projects": {
-    "/Users/dexteryap/C#/FileManagementSystem/FileManagementSystem.csproj": {
+    "/Users/dexteryap/C#/File-Management-System/FileManagementSystem.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/Users/dexteryap/C#/FileManagementSystem/FileManagementSystem.csproj",
+        "projectUniqueName": "/Users/dexteryap/C#/File-Management-System/FileManagementSystem.csproj",
         "projectName": "FileManagementSystem",
-        "projectPath": "/Users/dexteryap/C#/FileManagementSystem/FileManagementSystem.csproj",
+        "projectPath": "/Users/dexteryap/C#/File-Management-System/FileManagementSystem.csproj",
         "packagesPath": "/Users/dexteryap/.nuget/packages/",
-        "outputPath": "/Users/dexteryap/C#/FileManagementSystem/obj/",
+        "outputPath": "/Users/dexteryap/C#/File-Management-System/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "/Users/dexteryap/.nuget/NuGet/NuGet.Config"

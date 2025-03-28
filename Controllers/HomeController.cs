@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace FileManagementSystem.Controllers;
 
-[Authorize]
+
 public class HomeController : Controller
 {
     private readonly ILogger<HomeController> _logger;
@@ -15,6 +15,7 @@ public class HomeController : Controller
         _logger = logger;
     }
     
+    [Authorize]
     public IActionResult Index()
     {
         Response.Headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
