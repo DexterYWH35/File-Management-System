@@ -1,0 +1,21 @@
+# .NET Core
+bin/
+obj/
+*.user
+*.userosscache
+*.suo
+*.userprefs
+*.db
+*.sqlite3
+
+# Visual Studio
+.vs/
+*.swp
+*.*~
+project.lock.json
+.DS_Store
+*.pyc
+
+# Uploads directory
+wwwroot/uploads/
+!wwwroot/uploads/.gitkeep 

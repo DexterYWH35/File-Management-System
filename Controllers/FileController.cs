@@ -82,207 +82,245 @@ public class FileController : Controller
             return RedirectToAction("Login", "Account");
         }
 
-        // Fetch files uploaded by the logged-in user
-        var userFiles = _context.Files
+        // Fetch files uploaded by the logged-in user with their labels
+        var userFiles = await _context.Files
             .Where(f => f.UserId == user.Id)
+            .Include(f => f.FileLabels)
+                .ThenInclude(fl => fl.Label)
             .OrderByDescending(f => f.UploadDate)
-            .ToList();
+            .Select(f => new FileViewModel
+            {
+                Id = f.Id,
+                FileName = f.FileName,
+                UserId = f.UserId,
+                UploadDate = f.UploadDate,
+                Labels = f.FileLabels.Select(fl => fl.Label.Name).ToList()
+            })
+            .ToListAsync();
 
         return View(userFiles);
     }
 
     [HttpGet]
-public async Task<IActionResult> Download(int id)
-{
-    var user = await _userManager.GetUserAsync(User);
-    if (user == null)
+    public async Task<IActionResult> Download(int id)
     {
-        return RedirectToAction("Login", "Account");
+        var user = await _userManager.GetUserAsync(User);
+        if (user == null)
+        {
+            return RedirectToAction("Login", "Account");
+        }
+
+        var file = await _context.Files.FirstOrDefaultAsync(f => f.Id == id);
+        if (file == null)
+        {      
+            return NotFound("File not found.");
+        }
+
+        // Allow Admin to access all files
+        if (file.UserId != user.Id && !User.IsInRole("Admin"))
+        {
+            return Forbid(); // Return 403 Forbidden if user is not the owner or Admin
+        }
+        if (file == null)
+        {
+            return NotFound("File not found or you do not have permission to download it.");
+        }
+
+        var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", file.FilePath.TrimStart('/'));
+
+        if (!System.IO.File.Exists(filePath))
+        {
+            return NotFound("File does not exist on the server.");
+        }
+
+        var fileBytes = await System.IO.File.ReadAllBytesAsync(filePath);
+        return File(fileBytes, "application/octet-stream", file.FileName);
     }
 
-    var file = await _context.Files.FirstOrDefaultAsync(f => f.Id == id);
-    if (file == null)
-    {      
-        return NotFound("File not found.");
+    [HttpPost]
+    public async Task<IActionResult> Delete(int id, string? returnURl = null)
+    {
+        var user = await _userManager.GetUserAsync(User);
+        if (user == null)
+        {
+            return RedirectToAction("Login", "Account");
+        }
+
+        var file = await _context.Files.FirstOrDefaultAsync(f => f.Id == id);
+        if (file == null)
+        {
+            return NotFound("File not found.");
+        }
+
+        // Allow Admin to delete any file
+        if (file.UserId != user.Id && !User.IsInRole("Admin"))
+        {
+            return Forbid(); // Return 403 Forbidden if user is not the owner or Admin
+        }
+
+        // Proceed with deletion
+        var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", file.FilePath.TrimStart('/'));
+        if (System.IO.File.Exists(filePath))
+        {
+            System.IO.File.Delete(filePath);
+        }
+
+        _context.Files.Remove(file);
+        await _context.SaveChangesAsync();
+
+        // ✅ Stay on Admin Dashboard if an Admin deletes a file at admindashboard
+        if (User.IsInRole("Admin") && returnURl == "AdminDashboard")
+        {
+            return RedirectToAction("AdminDashboard", "File");
+        }
+        return RedirectToAction("Index", "File");
     }
 
-    // Allow Admin to access all files
-    if (file.UserId != user.Id && !User.IsInRole("Admin"))
+    [HttpGet]
+    public async Task<IActionResult> Preview(int id, string? returnUrl = null)
     {
-        return Forbid(); // Return 403 Forbidden if user is not the owner or Admin
-    }
-    if (file == null)
-    {
-        return NotFound("File not found or you do not have permission to download it.");
-    }
+        var user = await _userManager.GetUserAsync(User);
+        if (user == null)
+        {
+            return RedirectToAction("Login", "Account");
+        }
 
-    var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", file.FilePath.TrimStart('/'));
+        bool isAdmin = await _userManager.IsInRoleAsync(user, "Admin");
 
-    if (!System.IO.File.Exists(filePath))
-    {
-        return NotFound("File does not exist on the server.");
-    }
+        var file = isAdmin 
+            ? await _context.Files
+                .Include(f => f.FileLabels)
+                    .ThenInclude(fl => fl.Label)
+                .FirstOrDefaultAsync(f => f.Id == id)
+            : await _context.Files
+                .Include(f => f.FileLabels)
+                    .ThenInclude(fl => fl.Label)
+                .FirstOrDefaultAsync(f => f.Id == id && f.UserId == user.Id);
 
-    var fileBytes = await System.IO.File.ReadAllBytesAsync(filePath);
-    return File(fileBytes, "application/octet-stream", file.FileName);
-}
+        if (file == null)
+        {
+            return NotFound("File not found or you do not have permission to preview it.");
+        }
 
-[HttpPost]
-public async Task<IActionResult> Delete(int id, string? returnURl = null)
-{
-    var user = await _userManager.GetUserAsync(User);
-    if (user == null)
-    {
-        return RedirectToAction("Login", "Account");
-    }
+        var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", file.FilePath.TrimStart('/'));
 
-    var file = await _context.Files.FirstOrDefaultAsync(f => f.Id == id);
-if (file == null)
-{
-    return NotFound("File not found.");
-}
+        if (!System.IO.File.Exists(filePath))
+        {
+            return NotFound("File does not exist on the server.");
+        }
 
-// Allow Admin to delete any file
-if (file.UserId != user.Id && !User.IsInRole("Admin"))
-{
-    return Forbid(); // Return 403 Forbidden if user is not the owner or Admin
-}
+        // Get file size
+        var fileInfo = new FileInfo(filePath);
+        string fileSize = fileInfo.Length < 1024 ? $"{fileInfo.Length} B" :
+                         fileInfo.Length < 1024 * 1024 ? $"{fileInfo.Length / 1024:F2} KB" :
+                         fileInfo.Length < 1024 * 1024 * 1024 ? $"{fileInfo.Length / (1024 * 1024):F2} MB" :
+                         $"{fileInfo.Length / (1024 * 1024 * 1024):F2} GB";
 
-// Proceed with deletion
-var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", file.FilePath.TrimStart('/'));
-if (System.IO.File.Exists(filePath))
-{
-    System.IO.File.Delete(filePath);
-}
+        // Determine file type
+        string extension = Path.GetExtension(file.FileName).ToLower();
+        string contentType = extension switch
+        {
+            ".jpg" or ".jpeg" or ".png" or ".gif" => "image",
+            ".pdf" => "pdf",
+            ".mp4" or ".webm" => "video",
+            ".mp3" or ".wav" => "audio",
+            ".doc" or ".docx" or ".xls" or ".xlsx" => "document",
+            _ => "unsupported"
+        };
 
-_context.Files.Remove(file);
-await _context.SaveChangesAsync();
+        ViewData["FilePath"] = file.FilePath;
+        ViewData["FileType"] = contentType;
+        ViewData["FileId"] = file.Id;
+        ViewData["FileName"] = file.FileName;
+        ViewData["UploadDate"] = file.UploadDate;
+        ViewData["FileSize"] = fileSize;
+        ViewData["Labels"] = file.FileLabels.Select(fl => fl.Label).ToList();
+        ViewData["AvailableLabels"] = await _context.Labels
+            .Where(l => l.UserId == user.Id)
+            .ToListAsync();
+        ViewData["ReturnUrl"] = returnUrl;
+        ViewData["IsOwner"] = file.UserId == user.Id;
 
-    // ✅ Stay on Admin Dashboard if an Admin deletes a file at admindashboard
-    if (User.IsInRole("Admin") && returnURl == "AdminDashboard")
-    {
-        return RedirectToAction("AdminDashboard", "File");
-    }
-return RedirectToAction("Index", "File");
-
-}
-
-[HttpGet]
-public async Task<IActionResult> Preview(int id)
-{
-    var user = await _userManager.GetUserAsync(User);
-    if (user == null)
-    {
-        return RedirectToAction("Login", "Account");
+        return View();
     }
 
-     bool isAdmin = await _userManager.IsInRoleAsync(user, "Admin");
-
-    var file = isAdmin 
-        ? _context.Files.FirstOrDefault(f => f.Id == id) 
-        : _context.Files.FirstOrDefault(f => f.Id == id && f.UserId == user.Id);
-
-    if (file == null)
+    // Ensure only Admins can access this page
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> AdminDashboard()
     {
-        return NotFound("File not found or you do not have permission to preview it.");
+        var files = await (from f in _context.Files
+                          join u in _context.Users on f.UserId equals u.Id
+                          orderby f.UploadDate descending
+                          select new FileViewModel
+                          {
+                              Id = f.Id,
+                              FileName = f.FileName,
+                              UserId = f.UserId,
+                              UserName = u.UserName,
+                              UploadDate = f.UploadDate,
+                              Labels = f.FileLabels.Select(fl => fl.Label.Name).ToList()
+                          }).ToListAsync();
+
+        return View(files);
     }
 
-    var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", file.FilePath.TrimStart('/'));
-
-    if (!System.IO.File.Exists(filePath))
+    [Authorize]
+    public async Task<IActionResult> Search(string searchTerm)
     {
-        return NotFound("File does not exist on the server.");
+        var user = await _userManager.GetUserAsync(User);
+        if (user == null)
+        {
+            return RedirectToAction("Login", "Account");
+        }
+        string normalizedSearchTerm = searchTerm?.ToLower().Replace(" ", "") ?? "";
+
+        var files = await _context.Files
+            .Where(f => f.UserId == user.Id)
+            .Include(f => f.FileLabels)
+                .ThenInclude(fl => fl.Label)
+            .Where(f => string.IsNullOrEmpty(searchTerm) || f.FileName.ToLower().Contains(normalizedSearchTerm))
+            .OrderByDescending(f => f.UploadDate)
+            .Select(f => new FileViewModel
+            {
+                Id = f.Id,
+                FileName = f.FileName,
+                UserId = f.UserId,
+                UploadDate = f.UploadDate,
+                Labels = f.FileLabels.Select(fl => fl.Label.Name).ToList()
+            })
+            .ToListAsync();
+
+        return View("Index", files);
     }
 
-    // Determine file type
-    string extension = Path.GetExtension(file.FileName).ToLower();
-    string contentType = extension switch
-    {
-        ".jpg" or ".jpeg" or ".png" or ".gif" => "image",
-        ".pdf" => "pdf",
-        ".mp4" or ".webm" => "video",
-        ".mp3" or ".wav" => "audio",
-        ".doc" or ".docx" or ".xls" or ".xlsx" => "document",
-        _ => "unsupported"
-    };
-
-    ViewData["FilePath"] = file.FilePath;
-    ViewData["FileType"] = contentType;
-    ViewData["FileId"] = file.Id;
-    return View();
-}
-
-// Ensure only Admins can access this page
-[Authorize(Roles = "Admin")]
-public async Task<IActionResult> AdminDashboard()
-{
- var files = await (from f in _context.Files
-                       join u in _context.Users on f.UserId equals u.Id
-                       orderby f.UploadDate descending
-                       select new FileViewModel
-                       {
-                           Id = f.Id,
-                           FileName = f.FileName,
-                           UserId = f.UserId,
-                           UserName = u.UserName,
-                           UploadDate = f.UploadDate
-                       }).ToListAsync();
-
-    return View(files);
-}
-
-[Authorize]
-public async Task<IActionResult> Search(string searchTerm)
-{
-    var user = await _userManager.GetUserAsync(User);
-    if (user == null)
-    {
-        return RedirectToAction("Login", "Account");
-    }
-    string normalizedSearchTerm = searchTerm?.ToLower().Replace(" ", "") ?? "";
-
-    var files = _context.Files.Where(f => f.UserId == user.Id);
-
-    if (!string.IsNullOrEmpty(searchTerm))
-    {
-        files = files.Where(f => f.FileName.Contains(normalizedSearchTerm));
-    }
-
-    var sortedFiles = files.OrderByDescending(f => f.UploadDate).ToList();
-
-    return View("Index", sortedFiles);
-}
-
-[Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> SearchAllFiles(string searchTerm)
     {
-   var query = from f in _context.Files
-                join u in _context.Users on f.UserId equals u.Id into userGroup
-                from u in userGroup.DefaultIfEmpty()
-                select new FileViewModel
-                {
-                    Id = f.Id,
-                    FileName = f.FileName,
-                    UserId = f.UserId,
-                    UserName = u != null ? u.UserName : "Unknown User",
-                    UploadDate = f.UploadDate
-                };
+        var query = from f in _context.Files
+                     join u in _context.Users on f.UserId equals u.Id into userGroup
+                     from u in userGroup.DefaultIfEmpty()
+                     select new FileViewModel
+                     {
+                         Id = f.Id,
+                         FileName = f.FileName,
+                         UserId = f.UserId,
+                         UserName = u != null ? u.UserName : "Unknown User",
+                         UploadDate = f.UploadDate
+                     };
 
-    string normalizedSearchTerm = searchTerm?.ToLower().Replace(" ", "") ?? "";
+        string normalizedSearchTerm = searchTerm?.ToLower().Replace(" ", "") ?? "";
 
-    if (!string.IsNullOrEmpty(searchTerm))
-    {
-        query = query.Where(f => f.FileName.Contains(normalizedSearchTerm));
-        string lowerSearchTerm = searchTerm.ToLower();
-        query = query.Where(f => f.FileName.ToLower().Contains(lowerSearchTerm) || 
-                                 f.UserName.ToLower().Contains(lowerSearchTerm));
+        if (!string.IsNullOrEmpty(searchTerm))
+        {
+            query = query.Where(f => f.FileName.Contains(normalizedSearchTerm));
+            string lowerSearchTerm = searchTerm.ToLower();
+            query = query.Where(f => f.FileName.ToLower().Contains(lowerSearchTerm) || 
+                                     f.UserName.ToLower().Contains(lowerSearchTerm));
+        }
+
+        var sortedFiles = await query.OrderByDescending(f => f.UploadDate).ToListAsync();
+
+        return View("AdminDashboard", sortedFiles);
     }
-
-    var sortedFiles = await query.OrderByDescending(f => f.UploadDate).ToListAsync();
-
-    return View("AdminDashboard", sortedFiles);
-    }
-
-
 }
 

@@ -1,5 +1,6 @@
 using System;
 using System.ComponentModel.DataAnnotations;
+using System.Collections.Generic;
 
 namespace FileManagementSystem.Models
 {
@@ -18,15 +19,39 @@ namespace FileManagementSystem.Models
 
         [Required]
         public DateTime UploadDate { get; set; } = DateTime.UtcNow;
+
+        public virtual ICollection<FileLabel> FileLabels { get; set; } = new List<FileLabel>();
+    }
+
+    public class Label
+    {
+        public int Id { get; set; }
+
+        [Required]
+        public string Name { get; set; }
+
+        [Required]
+        public string UserId { get; set; }
+
+        public virtual ICollection<FileLabel> FileLabels { get; set; } = new List<FileLabel>();
+    }
+
+    public class FileLabel
+    {
+        public int FileId { get; set; }
+        public virtual FileModel File { get; set; }
+
+        public int LabelId { get; set; }
+        public virtual Label Label { get; set; }
     }
 
     public class FileViewModel
-{
-    public int Id { get; set; }
-    public string FileName { get; set; }
-    public string UserId { get; set; } 
-    public string UserName { get; set; } // This is from AspNetUsers
-    public DateTime UploadDate { get; set; }
-}
-
+    {
+        public int Id { get; set; }
+        public string FileName { get; set; }
+        public string UserId { get; set; } 
+        public string UserName { get; set; } // This is from AspNetUsers
+        public DateTime UploadDate { get; set; }
+        public List<string> Labels { get; set; } = new List<string>();
+    }
 }

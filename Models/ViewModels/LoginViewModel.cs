@@ -5,7 +5,6 @@ namespace FileManagementSystem.Models.ViewModels
     public class LoginViewModel
     {
         [Required(ErrorMessage = "UserName is required")]
-        // [EmailAddress(ErrorMessage = "Invalid email address")]
         public string UserName { get; set; }
 
         [Required(ErrorMessage = "Password is required")]

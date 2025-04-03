@@ -2,6 +2,7 @@ using FileManagementSystem.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using System.IO;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,6 +26,12 @@ builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 
+// Create uploads directory if it doesn't exist
+var uploadsPath = Path.Combine(app.Environment.WebRootPath, "uploads");
+if (!Directory.Exists(uploadsPath))
+{
+    Directory.CreateDirectory(uploadsPath);
+}
 
 async Task CreateAdminUserAsync(IServiceProvider serviceProvider)
 {
@@ -71,17 +78,28 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+// Configure static files
+app.UseStaticFiles(new StaticFileOptions
+{
+    OnPrepareResponse = ctx =>
+    {
+        // Allow access to files in the uploads directory
+        if (ctx.Context.Request.Path.StartsWithSegments("/uploads"))
+        {
+            ctx.Context.Response.Headers.Append("Access-Control-Allow-Origin", "*");
+        }
+    }
+});
+
 app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapStaticAssets();
-
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Account}/{action=Login}/{id?}")
-    .WithStaticAssets();
+    pattern: "{controller=Account}/{action=Login}/{id?}");
 
 // Ensures the Admin role and user exist when the application starts.
 using (var scope = app.Services.CreateScope())
@@ -89,6 +107,5 @@ using (var scope = app.Services.CreateScope())
     var services = scope.ServiceProvider;
     await CreateAdminUserAsync(services);
 }
-// Ensures the Admin role and user exist when the application starts.
 
 app.Run(); //change this to listen on all port http://0.0.0.0:5000

@@ -1,43 +1,201 @@
 @{
     ViewData["Title"] = "File Preview";
-    string filePath = ViewData["FilePath"] as string;
-    string fileType = ViewData["FileType"] as string;
-    string fullFilePath = "https://localhost:5000" + filePath; // Adjust URL for local testing
+    var returnUrl = ViewData["ReturnUrl"] as string;
 }
 
-<h2>File Preview</h2>
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2>@ViewData["FileName"]</h2>
+                @if (User.IsInRole("Admin"))
+                {
+                    @if (returnUrl == "AdminDashboard")
+                    {
+                        <a asp-controller="File" asp-action="AdminDashboard" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left"></i> Back to Dashboard
+                        </a>
+                    }
+                    else
+                    {
+                        <a asp-controller="File" asp-action="Index" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left"></i> Back to My Files
+                        </a>
+                    }
+                }
+                else
+                {
+                    <a asp-controller="File" asp-action="Index" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left"></i> Back to Files
+                    </a>
+                }
+            </div>
 
-<div class="preview-container">
-@if (fileType == "image")
-{
-    <img src="@filePath" class="img-fluid" alt="Preview Image" />
-}
-else if (fileType == "pdf")
-{
-    <embed src="@filePath" type="application/pdf" width="100%" height="600px" />
-}
-else if (fileType == "video")
-{
-    <video controls width="100%">
-        <source src="@filePath" type="video/mp4" />
-        Your browser does not support the video tag.
-    </video>
-}
-else if (fileType == "audio")
-{
-    <audio controls>
-        <source src="@filePath" type="audio/mpeg" />
-        Your browser does not support the audio element.
-    </audio>
-}
-else if (fileType == "document")
-{
-    <iframe src="https://docs.google.com/gview?url=@fullFilePath&embedded=true" width="100%" height="600px"></iframe>
-}
-else
-{
-    <p class="text-danger">Preview not available for this file type.</p>
-}
+            <!-- File Details Card -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">File Details</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>File Name:</strong> @ViewData["FileName"]</p>
+                            <p><strong>File Type:</strong> @ViewData["FileType"]</p>
+                            <p><strong>File ID:</strong> @ViewData["FileId"]</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Upload Date:</strong> @(((DateTime?)ViewData["UploadDate"])?.ToString("yyyy-MM-dd HH:mm:ss"))</p>
+                            <p><strong>File Size:</strong> @ViewData["FileSize"]</p>
+                            <p><strong>File Path:</strong> @ViewData["FilePath"]</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Labels Section -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Labels</h5>
+                </div>
+                <div class="card-body">
+                    <div id="fileLabels" class="d-flex flex-wrap gap-2 mb-2">
+                        @if (ViewData["Labels"] is List<FileManagementSystem.Models.Label> labels)
+                        {
+                            @foreach (var label in labels)
+                            {
+                                <span class="badge bg-primary">
+                                    @label.Name
+                                    @if (!User.IsInRole("Admin") || ViewData["IsOwner"] as bool? == true)
+                                    {
+                                        <button class="btn-close btn-close-white ms-1" style="font-size: 0.5rem;" 
+                                                onclick="removeLabel(@ViewData["FileId"], @label.Id)"></button>
+                                    }
+                                </span>
+                            }
+                        }
+                    </div>
+                    @if (!User.IsInRole("Admin") || ViewData["IsOwner"] as bool? == true)
+                    {
+                        <div class="input-group">
+                            <select id="labelSelect" class="form-select">
+                                <option value="">Select a label...</option>
+                                @if (ViewData["AvailableLabels"] is List<FileManagementSystem.Models.Label> availableLabels)
+                                {
+                                    @foreach (var label in availableLabels)
+                                    {
+                                        <option value="@label.Id">@label.Name</option>
+                                    }
+                                }
+                            </select>
+                            <button class="btn btn-primary" onclick="addLabel(@ViewData["FileId"])">Add Label</button>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- File Preview Section -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Preview</h5>
+                </div>
+                <div class="card-body">
+                    @switch (ViewData["FileType"] as string)
+                    {
+                        case "image":
+                            <img src="@ViewData["FilePath"]" class="img-fluid" alt="File preview" />
+                            break;
+                        case "pdf":
+                            <iframe src="@ViewData["FilePath"]" class="w-100" style="height: 600px;"></iframe>
+                            break;
+                        case "video":
+                            <video controls class="w-100">
+                                <source src="@ViewData["FilePath"]" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                            break;
+                        case "audio":
+                            <audio controls class="w-100">
+                                <source src="@ViewData["FilePath"]" type="audio/mpeg">
+                                Your browser does not support the audio element.
+                            </audio>
+                            break;
+                        case "document":
+                            <iframe src="https://docs.google.com/viewer?url=@Url.Action("Download", "File", new { id = ViewData["FileId"] }, Context.Request.Scheme)&embedded=true" 
+                                    class="w-100" style="height: 600px;"></iframe>
+                            break;
+                        default:
+                            <p>Preview not available for this file type.</p>
+                            break;
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Actions Sidebar -->
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a asp-controller="File" asp-action="Download" asp-route-id="@ViewData["FileId"]" 
+                           class="btn btn-success">
+                            <i class="bi bi-download"></i> Download File
+                        </a>
+                        @if (User.IsInRole("Admin") || ViewData["IsOwner"] as bool? == true)
+                        {
+                            <form asp-controller="File" asp-action="Delete" method="post" 
+                                  onsubmit="return confirm('Are you sure you want to delete this file?');">
+                                <input type="hidden" name="id" value="@ViewData["FileId"]" />
+                                <input type="hidden" name="returnUrl" value="@returnUrl" />
+                                <button type="submit" class="btn btn-danger w-100">
+                                    <i class="bi bi-trash"></i> Delete File
+                                </button>
+                            </form>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
-<a asp-controller="File" asp-action="Download" asp-route-id="@ViewData["FileId"]" class="btn btn-primary mt-3">Download</a>
+@section Scripts {
+    <script>
+        function addLabel(fileId) {
+            const labelId = document.getElementById('labelSelect').value;
+            if (!labelId) return;
+
+            fetch('/Labels/AddToFile', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `fileId=${fileId}&labelId=${labelId}`
+            })
+            .then(response => {
+                if (response.ok) {
+                    location.reload();
+                }
+            });
+        }
+
+        function removeLabel(fileId, labelId) {
+            if (!confirm('Are you sure you want to remove this label?')) return;
+
+            fetch('/Labels/RemoveFromFile', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `fileId=${fileId}&labelId=${labelId}`
+            })
+            .then(response => {
+                if (response.ok) {
+                    location.reload();
+                }
+            });
+        }
+    </script>
+}

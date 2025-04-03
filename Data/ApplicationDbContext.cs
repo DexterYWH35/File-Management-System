@@ -21,5 +21,25 @@ namespace FileManagementSystem.Data
             }
         }
             public DbSet<FileModel> Files { get; set; } 
+            public DbSet<Label> Labels { get; set; }
+            public DbSet<FileLabel> FileLabels { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<FileLabel>()
+                .HasKey(fl => new { fl.FileId, fl.LabelId });
+
+            modelBuilder.Entity<FileLabel>()
+                .HasOne(fl => fl.File)
+                .WithMany(f => f.FileLabels)
+                .HasForeignKey(fl => fl.FileId);
+
+            modelBuilder.Entity<FileLabel>()
+                .HasOne(fl => fl.Label)
+                .WithMany(l => l.FileLabels)
+                .HasForeignKey(fl => fl.LabelId);
+        }
     }
 }
