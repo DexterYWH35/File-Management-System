@@ -5,6 +5,9 @@ using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using System.Security.Cryptography.X509Certificates;
 using Microsoft.AspNetCore.Authorization;
+using System.IO;
+using System.Linq;
+using Microsoft.EntityFrameworkCore;
 
 namespace FileManagementSystem.Controllers
 {
@@ -12,11 +15,15 @@ namespace FileManagementSystem.Controllers
     {
         private readonly UserManager<IdentityUser> _userManager;
         private readonly SignInManager<IdentityUser> _signInManager;
+        private readonly ApplicationDbContext _context;
+        private readonly IWebHostEnvironment _webHostEnvironment;
 
-        public AccountController(UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager)
+        public AccountController(UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager, ApplicationDbContext context, IWebHostEnvironment webHostEnvironment)
         {
             _userManager = userManager;
             _signInManager = signInManager;
+            _context = context;
+            _webHostEnvironment = webHostEnvironment;
         }
 
         //GET
@@ -30,36 +37,20 @@ namespace FileManagementSystem.Controllers
         [HttpPost]
         public async Task<IActionResult> Login(LoginViewModel model)
         {
-            if (!ModelState.IsValid)
+            if (ModelState.IsValid)
             {
-                Console.WriteLine("Model is not valid.");
-
-                // Print validation errors
-                foreach (var error in ModelState)
+                var user = await _userManager.FindByEmailAsync(model.Email);
+                if (user != null)
                 {
-                    foreach (var subError in error.Value.Errors)
+                    var result = await _signInManager.PasswordSignInAsync(user.UserName, model.Password, model.RememberMe, false);
+                    if (result.Succeeded)
                     {
-                        Console.WriteLine($"Validation Error: {subError.ErrorMessage}");
+                        return RedirectToAction("Index", "Home");
                     }
                 }
-                ViewData["HideLoginButton"] = "true"; 
-                return View();
+                ModelState.AddModelError(string.Empty, "Invalid login attempt.");
             }
-            Console.WriteLine("UserName: "+model.UserName);
-            var result = await _signInManager.PasswordSignInAsync(model.UserName, model.Password, model.RememberMe, false);
-
-            if (result.Succeeded)
-            {
-                Console.WriteLine($"User {model.UserName} logged in successfully.");
-                return RedirectToAction("Index", "Home");
-            }
-            else
-            {
-                Console.WriteLine("Login failed. Invalid userName or password.");
-                ModelState.AddModelError("", "Invalid userName or password.");
-            }
-            ViewData["HideLoginButton"] = "true"; 
-            return View();
+            return View(model);
         }
 
         //GET
@@ -73,59 +64,27 @@ namespace FileManagementSystem.Controllers
         [HttpPost]
         public async Task<IActionResult> Register(RegisterViewModel model)
         {
-            if (!ModelState.IsValid)
+            if (ModelState.IsValid)
             {
-                Console.WriteLine("Model is not valid.");
-                
-                // Print validation errors
-                foreach (var error in ModelState)
+                var user = new IdentityUser
                 {
-                    foreach (var subError in error.Value.Errors)
-                    {
-                        Console.WriteLine($"Validation Error: {subError.ErrorMessage}");
-                    }
+                    UserName = model.UserName,
+                    Email = model.Email
+                };
+
+                var result = await _userManager.CreateAsync(user, model.Password);
+
+                if (result.Succeeded)
+                {
+                    await _signInManager.SignInAsync(user, isPersistent: false);
+                    return RedirectToAction("Index", "Home");
                 }
-                ViewData["HideRegisterButton"] = true;
-                return View();
-            }
 
-            //check if the username is already taken
-            var existingUser = await _userManager.FindByNameAsync(model.FullName);
-            if (existingUser != null)
-            {
-                Console.WriteLine($"Username {model.FullName} is already taken.");
-                ModelState.AddModelError("", "Username is already taken.");
-                ViewData["HideRegisterButton"] = true;
-                return View(model);
+                foreach (var error in result.Errors)
+                {
+                    ModelState.AddModelError(string.Empty, error.Description);
+                }
             }
-
-            // Check if email already exists
-            var existingEmail = await _userManager.FindByEmailAsync(model.Email);
-            if (existingEmail != null)
-            {
-                Console.WriteLine($"Email {model.Email} is already registered.");
-                ModelState.AddModelError("", "This email is already registered. Please use another.");
-                ViewData["HideRegisterButton"] = true;
-                return View(model);
-            }
-            
-            var user = new IdentityUser { UserName = model.FullName, Email = model.Email };
-            var result = await _userManager.CreateAsync(user, model.Password);
-
-            if (result.Succeeded)
-            {
-                Console.WriteLine($"User {user.Email} registered successfully.");
-                await _signInManager.SignInAsync(user, isPersistent: false);
-                return RedirectToAction("Login", "Account");
-            }
-
-            foreach (var error in result.Errors)
-            {
-                Console.WriteLine($"Error: {error.Description}");
-                ModelState.AddModelError("", error.Description);
-            }
-
-            ViewData["HideRegisterButton"] = true;
             return View(model);
         }
 
@@ -175,6 +134,105 @@ namespace FileManagementSystem.Controllers
             }
 
             return View(model);
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpPost]
+        public async Task<IActionResult> DeleteUser(string userId)
+        {
+            if (string.IsNullOrEmpty(userId))
+            {
+                return BadRequest("User ID is required");
+            }
+
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                return NotFound("User not found");
+            }
+
+            // Don't allow deleting the admin user
+            if (await _userManager.IsInRoleAsync(user, "Admin"))
+            {
+                return BadRequest("Cannot delete admin user");
+            }
+
+            // Delete user's files first
+            var userFiles = _context.Files.Where(f => f.UserId == userId);
+            foreach (var file in userFiles)
+            {
+                // Delete physical file
+                var filePath = Path.Combine(_webHostEnvironment.WebRootPath, file.FilePath.TrimStart('/'));
+                if (System.IO.File.Exists(filePath))
+                {
+                    System.IO.File.Delete(filePath);
+                }
+            }
+
+            // Remove files from database
+            _context.Files.RemoveRange(userFiles);
+            await _context.SaveChangesAsync();
+
+            // Delete the user
+            var result = await _userManager.DeleteAsync(user);
+            if (result.Succeeded)
+            {
+                TempData["SuccessMessage"] = $"User {user.UserName} has been deleted successfully.";
+            }
+            else
+            {
+                TempData["ErrorMessage"] = $"Error deleting user: {string.Join(", ", result.Errors.Select(e => e.Description))}";
+            }
+
+            return RedirectToAction("AdminDashboard", "File");
+        }
+
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> Profile()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return RedirectToAction("Login");
+            }
+
+            var userFiles = await _context.Files
+                .Where(f => f.UserId == user.Id)
+                .ToListAsync();
+
+            var totalStorageUsed = 0L;
+            foreach (var file in userFiles)
+            {
+                try
+                {
+                    var filePath = Path.Combine(_webHostEnvironment.WebRootPath, file.FilePath.TrimStart('/'));
+                    if (System.IO.File.Exists(filePath))
+                    {
+                        var fileInfo = new FileInfo(filePath);
+                        totalStorageUsed += fileInfo.Length;
+                    }
+                }
+                catch
+                {
+                    // Skip files that can't be accessed
+                    continue;
+                }
+            }
+
+            var roles = await _userManager.GetRolesAsync(user);
+            var role = roles.FirstOrDefault() ?? "User";
+
+            var viewModel = new ProfileViewModel
+            {
+                UserName = user.UserName,
+                Email = user.Email,
+                Role = role,
+                TotalFiles = userFiles.Count,
+                StorageUsed = totalStorageUsed
+            };
+
+            return View(viewModel);
         }
     }
 }

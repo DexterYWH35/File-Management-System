@@ -4,21 +4,25 @@ namespace FileManagementSystem.Models.ViewModels
 {
     public class RegisterViewModel
     {
-        [Required(ErrorMessage = "Full Name is required.")]
-        public string FullName { get; set; }
+        [Required(ErrorMessage = "Username is required")]
+        [Display(Name = "Username")]
+        [StringLength(50, ErrorMessage = "Username cannot be longer than 50 characters")]
+        public string UserName { get; set; }
 
-        [Required(ErrorMessage = "Email is required.")]
-        [EmailAddress(ErrorMessage = "Invalid email format.")]
+        [Required(ErrorMessage = "Email is required")]
+        [EmailAddress(ErrorMessage = "Invalid email address")]
+        [Display(Name = "Email")]
         public string Email { get; set; }
 
-        [Required(ErrorMessage = "Password is required.")]
+        [Required(ErrorMessage = "Password is required")]
+        [StringLength(100, ErrorMessage = "The {0} must be at least {2} characters long.", MinimumLength = 6)]
         [DataType(DataType.Password)]
-        [MinLength(6, ErrorMessage = "Password must be at least 6 characters.")]
+        [Display(Name = "Password")]
         public string Password { get; set; }
 
-        [Required(ErrorMessage = "Confirm Password is required.")]
         [DataType(DataType.Password)]
-        [Compare("Password", ErrorMessage = "Passwords do not match.")]
+        [Display(Name = "Confirm password")]
+        [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
         public string ConfirmPassword { get; set; }
     }
 }

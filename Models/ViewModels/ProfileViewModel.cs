@@ -4,11 +4,19 @@ namespace FileManagementSystem.Models.ViewModels
 {
     public class ProfileViewModel
     {
-        [Required(ErrorMessage = "Full Name is required.")]
-        public string FullName { get; set; }
+        [Display(Name = "Username")]
+        public string UserName { get; set; }
 
-        [Required(ErrorMessage = "Email is required.")]
-        [EmailAddress(ErrorMessage = "Invalid email format.")]
+        [Display(Name = "Email")]
         public string Email { get; set; }
+
+        [Display(Name = "Role")]
+        public string Role { get; set; }
+
+        [Display(Name = "Total Files")]
+        public int TotalFiles { get; set; }
+
+        [Display(Name = "Storage Used")]
+        public long StorageUsed { get; set; }
     }
 }

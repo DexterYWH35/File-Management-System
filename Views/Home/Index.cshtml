@@ -2,31 +2,119 @@
     ViewData["Title"] = "Home - File Management System";
 }
 
-<div class="container text-center">
-    <h1 class="mt-5">Welcome to the File Management System</h1>
-    <p class="lead">Easily upload, manage, and organize your files with secure access control.</p>
+<div class="container">
+    <!-- Hero Section -->
+    <div class="text-center py-5">
+        <h1 class="display-4 mb-4">Welcome to File Management System</h1>
+        <p class="lead mb-4">Your secure and organized solution for managing digital files</p>
+        <div class="d-flex justify-content-center gap-3">
+            <a asp-controller="File" asp-action="Upload" class="btn btn-primary btn-lg">
+                <i class="bi bi-upload"></i> Upload Files
+            </a>
+            <a asp-controller="File" asp-action="Index" class="btn btn-outline-primary btn-lg">
+                <i class="bi bi-folder"></i> View My Files
+            </a>
+            <a asp-controller="Labels" asp-action="Index" class="btn btn-outline-success btn-lg">
+                <i class="bi bi-tags"></i> Manage Labels
+            </a>
+        </div>
+    </div>
 
-    <div class="row mt-4">
+    <!-- Features Section -->
+    <div class="row mt-5 mb-5">
         <div class="col-md-4">
-            <div class="card shadow p-3">
-                <h4>Upload Files</h4>
-                <p>Securely upload your files to the system with ease.</p>
-                <a asp-controller="File" asp-action="Upload" class="btn btn-primary">Upload Now</a>
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <i class="bi bi-shield-lock display-4 text-primary mb-3"></i>
+                    <h3 class="card-title">Secure Storage</h3>
+                    <p class="card-text">Your files are protected with advanced security measures and role-based access control.</p>
+                </div>
             </div>
         </div>
         <div class="col-md-4">
-            <div class="card shadow p-3">
-                <h4>Manage Files</h4>
-                <p>View, rename, and delete your uploaded files anytime.</p>
-                <a asp-controller="File" asp-action="Index" class="btn btn-info">Manage Files</a>
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <i class="bi bi-tags display-4 text-primary mb-3"></i>
+                    <h3 class="card-title">Smart Organization</h3>
+                    <p class="card-text">Easily organize your files with custom labels and quick search functionality.</p>
+                </div>
             </div>
         </div>
         <div class="col-md-4">
-            <div class="card shadow p-3">
-                <h4>User Profile</h4>
-                <p>Update and view your profile information anytime this page.</p>
-                <a asp-controller="Profile" asp-action="Index" class="btn btn-warning">View Profile</a>
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <i class="bi bi-eye display-4 text-primary mb-3"></i>
+                    <h3 class="card-title">Preview Support</h3>
+                    <p class="card-text">Preview various file types including images, documents, and media files directly in your browser.</p>
+                </div>
             </div>
         </div>
     </div>
+
+    <!-- System Information -->
+    <div class="row mt-5">
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group">
+                        <a asp-controller="File" asp-action="Upload" class="list-group-item list-group-item-action">
+                            <i class="bi bi-upload me-2"></i> Upload New File
+                        </a>
+                        <a asp-controller="File" asp-action="Index" class="list-group-item list-group-item-action">
+                            <i class="bi bi-folder me-2"></i> Browse My Files
+                        </a>
+                        <a asp-controller="Account" asp-action="Profile" class="list-group-item list-group-item-action">
+                            <i class="bi bi-person me-2"></i> Update Profile
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">System Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group">
+                        <div class="list-group-item">
+                            <i class="bi bi-person-circle me-2"></i>
+                            <strong>Logged in as:</strong> @User.Identity?.Name
+                        </div>
+                        <div class="list-group-item">
+                            <i class="bi bi-shield-check me-2"></i>
+                            <strong>Role:</strong> @(User.IsInRole("Admin") ? "Administrator" : "User")
+                        </div>
+                        <div class="list-group-item">
+                            <i class="bi bi-clock-history me-2"></i>
+                            <strong>Last Login:</strong> @DateTime.Now.ToString("yyyy-MM-dd HH:mm")
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activity (if implemented) -->
+    @if (User.IsInRole("Admin"))
+    {
+        <div class="row mt-5">
+            <div class="col-12">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="card-title mb-0">Admin Dashboard</h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">Access the admin dashboard to manage all system files and users.</p>
+                        <a asp-controller="File" asp-action="AdminDashboard" class="btn btn-primary">
+                            <i class="bi bi-speedometer2"></i> Go to Admin Dashboard
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
 </div>

@@ -50,8 +50,10 @@ namespace FileManagementSystem.Models
         public int Id { get; set; }
         public string FileName { get; set; }
         public string UserId { get; set; } 
-        public string UserName { get; set; } // This is from AspNetUsers
+        public string UserName { get; set; }
         public DateTime UploadDate { get; set; }
         public List<string> Labels { get; set; } = new List<string>();
+        public string FileType { get; set; }
+        public long FileSize { get; set; }
     }
 }

@@ -2,17 +2,93 @@
     ViewData["Title"] = "Upload File";
 }
 
-<h2>Upload a File</h2>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-cloud-upload"></i> Upload New File
+                    </h5>
+                </div>
+                <div class="card-body">
+                    @if (ViewData["Message"] != null)
+                    {
+                        <div class="alert alert-info alert-dismissible fade show" role="alert">
+                            @ViewData["Message"]
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    }
 
-@if (ViewData["Message"] != null)
-{
-    <div class="alert alert-info">@ViewData["Message"]</div>
-}
+                    <form asp-controller="File" asp-action="Upload" method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+                        <div class="mb-4">
+                            <div class="input-group">
+                                <input type="file" name="file" class="form-control" id="fileInput" required />
+                                <button type="button" class="btn btn-outline-secondary" onclick="document.getElementById('fileInput').click()">
+                                    <i class="bi bi-folder2-open"></i> Browse
+                                </button>
+                            </div>
+                            <div class="form-text text-muted">
+                                Supported file types: Images, Documents, PDFs, Videos, Audio
+                            </div>
+                        </div>
 
-<form asp-controller="File" asp-action="Upload" method="post" enctype="multipart/form-data">
-    <div class="form-group">
-        <label>Select a file:</label>
-        <input type="file" name="file" class="form-control" required />
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-upload"></i> Upload File
+                            </button>
+                            <a asp-controller="File" asp-action="Index" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left"></i> Back to Files
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Upload Guidelines -->
+            <div class="card shadow-sm mt-4">
+                <div class="card-header bg-light">
+                    <h6 class="card-title mb-0">
+                        <i class="bi bi-info-circle"></i> Upload Guidelines
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item">
+                            <i class="bi bi-check-circle text-success"></i> Maximum file size: 10MB
+                        </li>
+                        <li class="list-group-item">
+                            <i class="bi bi-check-circle text-success"></i> Supported formats: .jpg, .png, .pdf, .doc, .docx, .xls, .xlsx, .mp4, .mp3
+                        </li>
+                        <li class="list-group-item">
+                            <i class="bi bi-check-circle text-success"></i> Files are automatically organized by upload date
+                        </li>
+                        <li class="list-group-item">
+                            <i class="bi bi-check-circle text-success"></i> You can add labels to files after upload
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
     </div>
-    <button type="submit" class="btn btn-primary mt-2">Upload</button>
-</form>
+</div>
+
+@section Scripts {
+    <script>
+        // Form validation
+        (function () {
+            'use strict'
+            var forms = document.querySelectorAll('.needs-validation')
+            Array.prototype.slice.call(forms)
+                .forEach(function (form) {
+                    form.addEventListener('submit', function (event) {
+                        if (!form.checkValidity()) {
+                            event.preventDefault()
+                            event.stopPropagation()
+                        }
+                        form.classList.add('was-validated')
+                    }, false)
+                })
+        })()
+    </script>
+}
