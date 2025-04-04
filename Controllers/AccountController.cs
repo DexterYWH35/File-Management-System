@@ -136,41 +136,49 @@ namespace FileManagementSystem.Controllers
             return View(model);
         }
 
-        [Authorize(Roles = "Admin")]
         [HttpPost]
-        public async Task<IActionResult> DeleteUser(string userId)
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> DeleteUser(string id)
         {
-            if (string.IsNullOrEmpty(userId))
+            if (string.IsNullOrEmpty(id))
             {
-                return BadRequest("User ID is required");
+                TempData["ErrorMessage"] = "User ID is required.";
+                return RedirectToAction("AdminDashboard", "File");
             }
 
-            var user = await _userManager.FindByIdAsync(userId);
+            var user = await _userManager.FindByIdAsync(id);
             if (user == null)
             {
-                return NotFound("User not found");
+                TempData["ErrorMessage"] = "User not found.";
+                return RedirectToAction("AdminDashboard", "File");
             }
 
-            // Don't allow deleting the admin user
+            // Check if user is admin
             if (await _userManager.IsInRoleAsync(user, "Admin"))
             {
-                return BadRequest("Cannot delete admin user");
+                TempData["ErrorMessage"] = "Cannot delete admin users.";
+                return RedirectToAction("AdminDashboard", "File");
             }
 
-            // Delete user's files first
-            var userFiles = _context.Files.Where(f => f.UserId == userId);
+            // Delete user's files
+            var userFiles = await _context.Files.Where(f => f.UserId == user.Id).ToListAsync();
             foreach (var file in userFiles)
             {
-                // Delete physical file
                 var filePath = Path.Combine(_webHostEnvironment.WebRootPath, file.FilePath.TrimStart('/'));
                 if (System.IO.File.Exists(filePath))
                 {
-                    System.IO.File.Delete(filePath);
+                    try
+                    {
+                        System.IO.File.Delete(filePath);
+                    }
+                    catch (Exception ex)
+                    {
+                        // Log the error but continue with user deletion
+                        Console.WriteLine($"Error deleting file {filePath}: {ex.Message}");
+                    }
                 }
+                _context.Files.Remove(file);
             }
-
-            // Remove files from database
-            _context.Files.RemoveRange(userFiles);
             await _context.SaveChangesAsync();
 
             // Delete the user
