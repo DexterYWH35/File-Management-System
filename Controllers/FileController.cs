@@ -498,5 +498,83 @@ public class FileController : Controller
 
         return View("AdminDashboard", viewModel);
     }
+
+    [HttpGet]
+    public async Task<IActionResult> Rename(int id)
+    {
+        var file = await _context.Files
+            .Include(f => f.FileLabels)
+            .ThenInclude(fl => fl.Label)
+            .FirstOrDefaultAsync(f => f.Id == id);
+
+        if (file == null)
+        {
+            return NotFound();
+        }
+
+        var currentUser = await _userManager.GetUserAsync(User);
+        if (file.UserId != currentUser.Id)
+        {
+            return Forbid();
+        }
+
+        // Construct the full file path
+        var fullPath = Path.Combine(_webHostEnvironment.WebRootPath, file.FilePath.TrimStart('/'));
+        long fileSize = 0;
+        
+        // Safely get file size
+        if (System.IO.File.Exists(fullPath))
+        {
+            fileSize = new FileInfo(fullPath).Length;
+        }
+
+        var viewModel = new FileViewModel
+        {
+            Id = file.Id,
+            FileName = file.FileName,
+            UserId = file.UserId,
+            UploadDate = file.UploadDate,
+            Labels = file.FileLabels.Select(fl => fl.Label.Name).ToList(),
+            FileType = GetFileType(file.FileName),
+            FileSize = fileSize
+        };
+
+        return View(viewModel);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Rename(int id, string newFileName)
+    {
+        var file = await _context.Files.FindAsync(id);
+        if (file == null)
+        {
+            return NotFound();
+        }
+
+        var currentUser = await _userManager.GetUserAsync(User);
+        if (file.UserId != currentUser.Id)
+        {
+            return Forbid();
+        }
+
+        if (string.IsNullOrWhiteSpace(newFileName))
+        {
+            ModelState.AddModelError("", "File name cannot be empty");
+            return View(new FileViewModel { Id = id, FileName = file.FileName });
+        }
+
+        // Get the file extension
+        string extension = Path.GetExtension(file.FileName);
+        
+        // Combine the new name with the original extension
+        string newFileNameWithExtension = newFileName + extension;
+
+        // Update the file name in the database
+        file.FileName = newFileNameWithExtension;
+        _context.Update(file);
+        await _context.SaveChangesAsync();
+
+        return RedirectToAction("Preview", new { id = id });
+    }
 }
 

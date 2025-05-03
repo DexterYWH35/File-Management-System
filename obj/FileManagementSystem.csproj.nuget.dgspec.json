@@ -1,25 +1,28 @@
 {
   "format": 1,
   "restore": {
-    "/Users/dexteryap/C#/File-Management-System/FileManagementSystem.csproj": {}
+    "C:\\C#\\File-Management-System\\FileManagementSystem.csproj": {}
   },
   "projects": {
-    "/Users/dexteryap/C#/File-Management-System/FileManagementSystem.csproj": {
+    "C:\\C#\\File-Management-System\\FileManagementSystem.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/Users/dexteryap/C#/File-Management-System/FileManagementSystem.csproj",
+        "projectUniqueName": "C:\\C#\\File-Management-System\\FileManagementSystem.csproj",
         "projectName": "FileManagementSystem",
-        "projectPath": "/Users/dexteryap/C#/File-Management-System/FileManagementSystem.csproj",
-        "packagesPath": "/Users/dexteryap/.nuget/packages/",
-        "outputPath": "/Users/dexteryap/C#/File-Management-System/obj/",
+        "projectPath": "C:\\C#\\File-Management-System\\FileManagementSystem.csproj",
+        "packagesPath": "C:\\Users\\Hangy\\.nuget\\packages\\",
+        "outputPath": "C:\\C#\\File-Management-System\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "/Users/dexteryap/.nuget/NuGet/NuGet.Config"
+          "C:\\Users\\Hangy\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
           "net9.0"
         ],
         "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -86,7 +89,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/9.0.201/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.203/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

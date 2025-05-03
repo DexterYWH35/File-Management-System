@@ -3,6 +3,10 @@
     var returnUrl = ViewData["ReturnUrl"] as string;
 }
 
+<style>
+    #renameForm { display: none; }
+</style>
+
 <div class="container mt-4">
     <div class="row">
         <div class="col-md-8">
@@ -39,7 +43,27 @@
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-6">
-                            <p><strong>File Name:</strong> @ViewData["FileName"]</p>
+                            <p><strong>File Name:</strong>
+                                @if (User.IsInRole("Admin") || ViewData["IsOwner"] as bool? == true)
+                                {
+                                    <span id="fileNameDisplay" style="display:inline;">
+                                        @ViewData["FileName"]
+                                        <button type="button" class="btn btn-sm btn-outline-info ms-1" id="showRenameBtn" onclick="showRenameInput()">
+                                            <i class="bi bi-pencil"></i> Rename
+                                        </button>
+                                    </span>
+                                    <form asp-action="Rename" asp-controller="File" method="post" id="renameForm" style="display:none;" onsubmit="return showRenameAlert()">
+                                        <input type="hidden" name="id" value="@ViewData["FileId"]" />
+                                        <input type="text" name="newFileName" value="@System.IO.Path.GetFileNameWithoutExtension((string)ViewData["FileName"] )" style="width: 180px;" class="form-control d-inline-block" required />
+                                        <input type="hidden" name="extension" value="@System.IO.Path.GetExtension((string)ViewData["FileName"] )" />
+                                        <button type="submit" class="btn btn-sm btn-outline-info ms-1">Save</button>
+                                    </form>
+                                }
+                                else
+                                {
+                                    @ViewData["FileName"]
+                                }
+                            </p>
                             <p><strong>File Type:</strong> @ViewData["FileType"]</p>
                             <p><strong>File ID:</strong> @ViewData["FileId"]</p>
                         </div>
@@ -196,6 +220,18 @@
                     location.reload();
                 }
             });
+        }
+
+        function showRenameInput() {
+            document.getElementById('fileNameDisplay').style.display = 'none';
+            document.getElementById('renameForm').style.display = 'inline';
+            document.querySelector('#renameForm input[name="newFileName"]').focus();
+        }
+
+        function showRenameAlert() {
+            var newName = document.querySelector('#renameForm input[name="newFileName"]').value;
+            alert('New name saved: ' + newName);
+            return true;
         }
     </script>
 }
