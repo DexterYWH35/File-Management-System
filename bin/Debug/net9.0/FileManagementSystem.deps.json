@@ -12,7 +12,8 @@
           "Microsoft.AspNetCore.Identity.EntityFrameworkCore": "9.0.3",
           "Microsoft.AspNetCore.Identity.UI": "9.0.3",
           "Microsoft.EntityFrameworkCore.Sqlite": "9.0.3",
-          "Microsoft.EntityFrameworkCore.Tools": "9.0.3"
+          "Microsoft.EntityFrameworkCore.Tools": "9.0.3",
+          "Syncfusion.Pdf.Net.Core": "29.1.40"
         },
         "runtime": {
           "FileManagementSystem.dll": {}
@@ -649,6 +650,7 @@
           }
         }
       },
+      "Microsoft.NETCore.Platforms/2.0.0": {},
       "Mono.TextTemplating/3.0.0": {
         "dependencies": {
           "System.CodeDom": "6.0.0"
@@ -803,6 +805,35 @@
           }
         }
       },
+      "Syncfusion.Compression.Net.Core/29.1.40": {
+        "runtime": {
+          "lib/net9.0/Syncfusion.Compression.Portable.dll": {
+            "assemblyVersion": "29.1.40.0",
+            "fileVersion": "29.1.40.0"
+          }
+        }
+      },
+      "Syncfusion.Licensing/29.1.40": {
+        "runtime": {
+          "lib/net9.0/Syncfusion.Licensing.dll": {
+            "assemblyVersion": "29.1.40.0",
+            "fileVersion": "29.1.40.0"
+          }
+        }
+      },
+      "Syncfusion.Pdf.Net.Core/29.1.40": {
+        "dependencies": {
+          "Syncfusion.Compression.Net.Core": "29.1.40",
+          "Syncfusion.Licensing": "29.1.40",
+          "System.Text.Encoding.CodePages": "4.4.0"
+        },
+        "runtime": {
+          "lib/net9.0/Syncfusion.Pdf.Portable.dll": {
+            "assemblyVersion": "29.1.40.0",
+            "fileVersion": "29.1.40.0"
+          }
+        }
+      },
       "System.CodeDom/6.0.0": {
         "runtime": {
           "lib/net6.0/System.CodeDom.dll": {
@@ -888,6 +919,11 @@
         }
       },
       "System.Runtime.CompilerServices.Unsafe/6.0.0": {},
+      "System.Text.Encoding.CodePages/4.4.0": {
+        "dependencies": {
+          "Microsoft.NETCore.Platforms": "2.0.0"
+        }
+      },
       "System.Text.Json/9.0.3": {},
       "System.Threading.Channels/7.0.0": {}
     }
@@ -1171,6 +1207,13 @@
       "path": "microsoft.extensions.primitives/9.0.3",
       "hashPath": "microsoft.extensions.primitives.9.0.3.nupkg.sha512"
     },
+    "Microsoft.NETCore.Platforms/2.0.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-VdLJOCXhZaEMY7Hm2GKiULmn7IEPFE4XC5LPSfBVCUIA8YLZVh846gtfBJalsPQF2PlzdD7ecX7DZEulJ402ZQ==",
+      "path": "microsoft.netcore.platforms/2.0.0",
+      "hashPath": "microsoft.netcore.platforms.2.0.0.nupkg.sha512"
+    },
     "Mono.TextTemplating/3.0.0": {
       "type": "package",
       "serviceable": true,
@@ -1205,6 +1248,27 @@
       "sha512": "sha512-uZVTi02C1SxqzgT0HqTWatIbWGb40iIkfc3FpFCpE/r7g6K0PqzDUeefL6P6HPhDtc6BacN3yQysfzP7ks+wSQ==",
       "path": "sqlitepclraw.provider.e_sqlite3/2.1.10",
       "hashPath": "sqlitepclraw.provider.e_sqlite3.2.1.10.nupkg.sha512"
+    },
+    "Syncfusion.Compression.Net.Core/29.1.40": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-xHJvxMnlrSoCpWm3Hj7nWaddX3SedqU/iaJoMMKiXeyir64M2Kvt7ZDRoWL0l+RECmKTu3DbdE2z1sa22NGCpw==",
+      "path": "syncfusion.compression.net.core/29.1.40",
+      "hashPath": "syncfusion.compression.net.core.29.1.40.nupkg.sha512"
+    },
+    "Syncfusion.Licensing/29.1.40": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-nt2AogC2Zui0fJMrHa7CPzYPapebPVIP/9hN2/fjT/665Z4MgM3//mX8pPzXAKIuKQW0TcK+rfBrCG+EhLMEiw==",
+      "path": "syncfusion.licensing/29.1.40",
+      "hashPath": "syncfusion.licensing.29.1.40.nupkg.sha512"
+    },
+    "Syncfusion.Pdf.Net.Core/29.1.40": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-6Nl7Ci5YEuPeHtIrnGxc9d2910IF0ptRnfisjOVM0UEdQ3zg6J1XT7oeD47fnu4IcS6TpgxjUCGkROTYTsjTYA==",
+      "path": "syncfusion.pdf.net.core/29.1.40",
+      "hashPath": "syncfusion.pdf.net.core.29.1.40.nupkg.sha512"
     },
     "System.CodeDom/6.0.0": {
       "type": "package",
@@ -1296,6 +1360,13 @@
       "sha512": "sha512-/iUeP3tq1S0XdNNoMz5C9twLSrM/TH+qElHkXWaPvuNOt+99G75NrV0OS2EqHx5wMN7popYjpc8oTjC1y16DLg==",
       "path": "system.runtime.compilerservices.unsafe/6.0.0",
       "hashPath": "system.runtime.compilerservices.unsafe.6.0.0.nupkg.sha512"
+    },
+    "System.Text.Encoding.CodePages/4.4.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-6JX7ZdaceBiLKLkYt8zJcp4xTJd1uYyXXEkPw6mnlUIjh1gZPIVKPtRXPmY5kLf6DwZmf5YLwR3QUrRonl7l0A==",
+      "path": "system.text.encoding.codepages/4.4.0",
+      "hashPath": "system.text.encoding.codepages.4.4.0.nupkg.sha512"
     },
     "System.Text.Json/9.0.3": {
       "type": "package",

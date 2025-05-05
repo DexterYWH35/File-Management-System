@@ -1,0 +1,48 @@
+@{
+    var folders = ViewBag.Folders as List<FileManagementSystem.Models.FolderModel>;
+    int? currentFolderId = ViewBag.CurrentFolderId as int?;
+    int fileId = ViewBag.FileId;
+}
+<div class="modal fade" id="moveFileModal" tabindex="-1" aria-labelledby="moveFileModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="moveFileModalLabel">Move File</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form asp-action="MoveFile" method="post">
+                <input type="hidden" name="id" value="@fileId" />
+                <div class="modal-body">
+                    @if (folders == null || !folders.Any())
+                    {
+                        <div class="alert alert-warning">No folders available to move this file.</div>
+                    }
+                    else
+                    {
+                        <div class="mb-3">
+                            <label for="targetFolderId" class="form-label">Select Target Folder</label>
+                            <select class="form-select" id="targetFolderId" name="targetFolderId" required>
+                                <option value="">-- Select Folder --</option>
+                                @foreach (var folder in folders)
+                                {
+                                    if (folder.Id == currentFolderId)
+                                    {
+                                        <option value="@folder.Id" selected>@folder.Name</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@folder.Id">@folder.Name</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                    }
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary" @(folders == null || !folders.Any() ? "disabled" : "")>Move</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div> 

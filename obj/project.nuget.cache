@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "X8tb/PyQHqk=",
+  "dgSpecHash": "vVpO8HUKrCo=",
   "success": true,
   "projectFilePath": "/Users/dexteryap/C#/File-Management-System/FileManagementSystem.csproj",
   "expectedPackageFiles": [
@@ -43,11 +43,15 @@
     "/Users/dexteryap/.nuget/packages/microsoft.extensions.logging.abstractions/9.0.3/microsoft.extensions.logging.abstractions.9.0.3.nupkg.sha512",
     "/Users/dexteryap/.nuget/packages/microsoft.extensions.options/9.0.3/microsoft.extensions.options.9.0.3.nupkg.sha512",
     "/Users/dexteryap/.nuget/packages/microsoft.extensions.primitives/9.0.3/microsoft.extensions.primitives.9.0.3.nupkg.sha512",
+    "/Users/dexteryap/.nuget/packages/microsoft.netcore.platforms/2.0.0/microsoft.netcore.platforms.2.0.0.nupkg.sha512",
     "/Users/dexteryap/.nuget/packages/mono.texttemplating/3.0.0/mono.texttemplating.3.0.0.nupkg.sha512",
     "/Users/dexteryap/.nuget/packages/sqlitepclraw.bundle_e_sqlite3/2.1.10/sqlitepclraw.bundle_e_sqlite3.2.1.10.nupkg.sha512",
     "/Users/dexteryap/.nuget/packages/sqlitepclraw.core/2.1.10/sqlitepclraw.core.2.1.10.nupkg.sha512",
     "/Users/dexteryap/.nuget/packages/sqlitepclraw.lib.e_sqlite3/2.1.10/sqlitepclraw.lib.e_sqlite3.2.1.10.nupkg.sha512",
     "/Users/dexteryap/.nuget/packages/sqlitepclraw.provider.e_sqlite3/2.1.10/sqlitepclraw.provider.e_sqlite3.2.1.10.nupkg.sha512",
+    "/Users/dexteryap/.nuget/packages/syncfusion.compression.net.core/29.1.40/syncfusion.compression.net.core.29.1.40.nupkg.sha512",
+    "/Users/dexteryap/.nuget/packages/syncfusion.licensing/29.1.40/syncfusion.licensing.29.1.40.nupkg.sha512",
+    "/Users/dexteryap/.nuget/packages/syncfusion.pdf.net.core/29.1.40/syncfusion.pdf.net.core.29.1.40.nupkg.sha512",
     "/Users/dexteryap/.nuget/packages/system.codedom/6.0.0/system.codedom.6.0.0.nupkg.sha512",
     "/Users/dexteryap/.nuget/packages/system.collections.immutable/7.0.0/system.collections.immutable.7.0.0.nupkg.sha512",
     "/Users/dexteryap/.nuget/packages/system.composition/7.0.0/system.composition.7.0.0.nupkg.sha512",
@@ -61,15 +65,9 @@
     "/Users/dexteryap/.nuget/packages/system.memory/4.5.3/system.memory.4.5.3.nupkg.sha512",
     "/Users/dexteryap/.nuget/packages/system.reflection.metadata/7.0.0/system.reflection.metadata.7.0.0.nupkg.sha512",
     "/Users/dexteryap/.nuget/packages/system.runtime.compilerservices.unsafe/6.0.0/system.runtime.compilerservices.unsafe.6.0.0.nupkg.sha512",
+    "/Users/dexteryap/.nuget/packages/system.text.encoding.codepages/4.4.0/system.text.encoding.codepages.4.4.0.nupkg.sha512",
     "/Users/dexteryap/.nuget/packages/system.text.json/9.0.3/system.text.json.9.0.3.nupkg.sha512",
     "/Users/dexteryap/.nuget/packages/system.threading.channels/7.0.0/system.threading.channels.7.0.0.nupkg.sha512"
   ],
-  "logs": [
-    {
-      "code": "NU1900",
-      "level": "Warning",
-      "warningLevel": 1,
-      "message": "Error occurred while getting package vulnerability data: Unable to load the service index for source https://api.nuget.org/v3/index.json."
-    }
-  ]
+  "logs": []
 }

@@ -1,0 +1,36 @@
+@{
+    var folders = ViewBag.Folders as List<FileManagementSystem.Models.FolderModel>;
+    var fileIds = ViewBag.FileIds as List<int>;
+}
+<div class="modal fade" id="bulkMoveModal" tabindex="-1" aria-labelledby="bulkMoveModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="bulkMoveModalLabel">Move Files</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form asp-action="BulkMove" method="post">
+                @foreach (var id in fileIds)
+                {
+                    <input type="hidden" name="fileIds" value="@id" />
+                }
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="targetFolderId" class="form-label">Select Target Folder</label>
+                        <select class="form-select" id="targetFolderId" name="targetFolderId" required>
+                            <option value="">-- Select Folder --</option>
+                            @foreach (var folder in folders)
+                            {
+                                <option value="@folder.Id">@folder.Name</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Move</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div> 

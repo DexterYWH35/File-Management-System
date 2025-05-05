@@ -13,6 +13,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Hosting;
+using Syncfusion.Pdf;
+using Syncfusion.Pdf.Graphics;
+using Syncfusion.Drawing;
 
 [Authorize] // Only logged-in users can upload files
 public class FileController : Controller
@@ -29,17 +32,29 @@ public class FileController : Controller
     }
 
     [HttpGet]
-    public IActionResult Upload()
+    public async Task<IActionResult> Upload(int? folderId = null)
     {
+        ViewBag.FolderId = folderId;
+        var user = await _userManager.GetUserAsync(User);
+        if (user != null)
+        {
+            var files = await _context.Files
+                .Where(f => f.UserId == user.Id && f.FolderId == folderId)
+                .OrderByDescending(f => f.UploadDate)
+                .Take(10)
+                .ToListAsync();
+            ViewBag.RecentFiles = files;
+        }
         return View();
     }
 
     [HttpPost]
-    public async Task<IActionResult> Upload(IFormFile file)
+    public async Task<IActionResult> Upload(IFormFile[] files, int? folderId = null)
     {
-        if (file == null || file.Length == 0)
+        if (files == null || files.Length == 0 || files.All(f => f == null || f.Length == 0))
         {
-            ViewData["Message"] = "Please select a file to upload.";
+            ViewData["Message"] = "Please select at least one file to upload.";
+            ViewBag.FolderId = folderId;
             return View();
         }
 
@@ -49,36 +64,53 @@ public class FileController : Controller
             return RedirectToAction("Login", "Account");
         }
 
-        // Save the file to "wwwroot/uploads" folder
         var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
         if (!Directory.Exists(uploadsFolder))
         {
             Directory.CreateDirectory(uploadsFolder);
         }
 
-        var filePath = Path.Combine(uploadsFolder, file.FileName);
-        using (var stream = new FileStream(filePath, FileMode.Create))
+        int uploadedCount = 0;
+        foreach (var file in files)
         {
-            await file.CopyToAsync(stream);
+            if (file == null || file.Length == 0) continue;
+            var filePath = Path.Combine(uploadsFolder, file.FileName);
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+            }
+            var fileModel = new FileModel
+            {
+                FileName = file.FileName,
+                FilePath = "/uploads/" + file.FileName,
+                UserId = user.Id,
+                UploadDate = DateTime.UtcNow,
+                FolderId = folderId
+            };
+            _context.Files.Add(fileModel);
+            uploadedCount++;
         }
-
-        // Save file details to database
-        var fileModel = new FileModel
-        {
-            FileName = file.FileName,
-            FilePath = "/uploads/" + file.FileName,
-            UserId = user.Id,
-            UploadDate = DateTime.UtcNow
-        };
-
-        _context.Files.Add(fileModel);
         await _context.SaveChangesAsync();
 
-        ViewData["Message"] = "File uploaded successfully!";
+        ViewData["Message"] = $"{uploadedCount} file(s) uploaded successfully!";
+        ViewBag.FolderId = folderId;
         return View();
     }
 
-    public async Task<IActionResult> Index()
+    private async Task<List<FolderModel>> GetFolderBreadcrumbs(int? folderId)
+    {
+        var breadcrumbs = new List<FolderModel>();
+        while (folderId != null)
+        {
+            var folder = await _context.Folders.FindAsync(folderId);
+            if (folder == null) break;
+            breadcrumbs.Insert(0, folder);
+            folderId = folder.ParentFolderId;
+        }
+        return breadcrumbs;
+    }
+
+    public async Task<IActionResult> Index(int? folderId = null)
     {
         var user = await _userManager.GetUserAsync(User);
         if (user == null)
@@ -86,9 +118,15 @@ public class FileController : Controller
             return RedirectToAction("Login", "Account");
         }
 
-        // Fetch files uploaded by the logged-in user with their labels
-        var userFiles = await _context.Files
-            .Where(f => f.UserId == user.Id)
+        // Get folders in the current folder (owned or shared)
+        var ownedFolders = await _context.Folders
+            .Where(f => f.UserId == user.Id && f.ParentFolderId == folderId)
+            .ToListAsync();
+        var folders = ownedFolders.ToList();
+
+        // Get files in the current folder (if user has access)
+        var files = await _context.Files
+            .Where(f => f.FolderId == folderId && f.UserId == user.Id)
             .Include(f => f.FileLabels)
                 .ThenInclude(fl => fl.Label)
             .OrderByDescending(f => f.UploadDate)
@@ -104,12 +142,11 @@ public class FileController : Controller
             })
             .ToListAsync();
 
-        // Add user's labels to ViewBag for the filter dropdown
-        ViewBag.Labels = await _context.Labels
-            .Where(l => l.UserId == user.Id)
-            .ToListAsync();
-
-        return View(userFiles);
+        ViewBag.Folders = folders;
+        ViewBag.CurrentFolderId = folderId;
+        ViewBag.Breadcrumbs = await GetFolderBreadcrumbs(folderId);
+        ViewBag.Labels = await _context.Labels.Where(l => l.UserId == user.Id).ToListAsync();
+        return View(files);
     }
 
     [HttpGet]
@@ -117,25 +154,11 @@ public class FileController : Controller
     {
         var user = await _userManager.GetUserAsync(User);
         if (user == null)
-        {
             return RedirectToAction("Login", "Account");
-        }
 
         var file = await _context.Files.FirstOrDefaultAsync(f => f.Id == id);
         if (file == null)
-        {      
             return NotFound("File not found.");
-        }
-
-        // Allow Admin to access all files
-        if (file.UserId != user.Id && !User.IsInRole("Admin"))
-        {
-            return Forbid(); // Return 403 Forbidden if user is not the owner or Admin
-        }
-        if (file == null)
-        {
-            return NotFound("File not found or you do not have permission to download it.");
-        }
 
         var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", file.FilePath.TrimStart('/'));
 
@@ -163,12 +186,6 @@ public class FileController : Controller
             return NotFound("File not found.");
         }
 
-        // Allow Admin to delete any file
-        if (file.UserId != user.Id && !User.IsInRole("Admin"))
-        {
-            return Forbid(); // Return 403 Forbidden if user is not the owner or Admin
-        }
-
         // Proceed with deletion
         var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", file.FilePath.TrimStart('/'));
         if (System.IO.File.Exists(filePath))
@@ -192,9 +209,7 @@ public class FileController : Controller
     {
         var user = await _userManager.GetUserAsync(User);
         if (user == null)
-        {
             return RedirectToAction("Login", "Account");
-        }
 
         bool isAdmin = await _userManager.IsInRoleAsync(user, "Admin");
 
@@ -230,6 +245,7 @@ public class FileController : Controller
         // Determine file type
         string extension = Path.GetExtension(file.FileName).ToLower();
         string contentType = extension switch
+        
         {
             ".jpg" or ".jpeg" or ".png" or ".gif" => "image",
             ".pdf" => "pdf",
@@ -575,6 +591,359 @@ public class FileController : Controller
         await _context.SaveChangesAsync();
 
         return RedirectToAction("Preview", new { id = id });
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> ConvertToPdf(int id)
+    {
+        var user = await _userManager.GetUserAsync(User);
+        if (user == null)
+            return RedirectToAction("Login", "Account");
+
+        var file = await _context.Files.FirstOrDefaultAsync(f => f.Id == id);
+        if (file == null)
+            return NotFound("File not found.");
+
+        // Only allow owner or admin
+        if (file.UserId != user.Id && !User.IsInRole("Admin"))
+            return Forbid();
+
+        var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", file.FilePath.TrimStart('/'));
+        if (!System.IO.File.Exists(filePath))
+            return NotFound("File does not exist on the server.");
+
+        // Generate new file name
+        var pdfFileName = Path.GetFileNameWithoutExtension(file.FileName) + ".pdf";
+        var pdfFilePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", pdfFileName);
+
+        var ext = Path.GetExtension(file.FileName).ToLower();
+        try
+        {
+            if (ext == ".txt")
+            {
+                using (FileStream pdfStream = new FileStream(pdfFilePath, FileMode.Create, FileAccess.Write))
+                using (PdfDocument document = new PdfDocument())
+                {
+                    PdfPage page = document.Pages.Add();
+                    string text = System.IO.File.ReadAllText(filePath);
+                    PdfFont font = new PdfStandardFont(PdfFontFamily.Helvetica, 12);
+                    page.Graphics.DrawString(
+                        text,
+                        font,
+                        PdfBrushes.Black,
+                        new Syncfusion.Drawing.RectangleF(0, 0, page.GetClientSize().Width, page.GetClientSize().Height)
+                    );
+                    document.Save(pdfStream);
+                }
+            }
+            else if (ext == ".jpg" || ext == ".jpeg" || ext == ".png")
+            {
+                using (FileStream pdfStream = new FileStream(pdfFilePath, FileMode.Create, FileAccess.Write))
+                using (PdfDocument document = new PdfDocument())
+                {
+                    PdfPage page = document.Pages.Add();
+                    using (FileStream imageStream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
+                    {
+                        PdfBitmap pdfBitmap = new PdfBitmap(imageStream);
+                        float width = pdfBitmap.PhysicalDimension.Width > page.GetClientSize().Width ? page.GetClientSize().Width : pdfBitmap.PhysicalDimension.Width;
+                        float height = pdfBitmap.PhysicalDimension.Height > page.GetClientSize().Height ? page.GetClientSize().Height : pdfBitmap.PhysicalDimension.Height;
+                        page.Graphics.DrawImage(pdfBitmap, 0, 0, width, height);
+                    }
+                    document.Save(pdfStream);
+                }
+            }
+            else
+            {
+                TempData["ErrorMessage"] = "PDF conversion is only supported for .txt and image files (.jpg, .jpeg, .png) in this demo.";
+                return RedirectToAction("Preview", new { id });
+            }
+        }
+        catch (Exception ex)
+        {
+            TempData["ErrorMessage"] = "PDF conversion failed: " + ex.Message;
+            return RedirectToAction("Preview", new { id });
+        }
+
+        // Save new file to DB
+        var newFile = new FileModel
+        {
+            FileName = pdfFileName,
+            FilePath = "/uploads/" + pdfFileName,
+            UserId = file.UserId,
+            UploadDate = DateTime.UtcNow
+        };
+        _context.Files.Add(newFile);
+        await _context.SaveChangesAsync();
+
+        TempData["SuccessMessage"] = "File converted to PDF and saved!";
+        return RedirectToAction("Preview", new { id = newFile.Id });
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> CreateFolder(string folderName, int? parentFolderId = null)
+    {
+        var user = await _userManager.GetUserAsync(User);
+        if (user == null)
+        {
+            return RedirectToAction("Login", "Account");
+        }
+        if (string.IsNullOrWhiteSpace(folderName))
+        {
+            TempData["ErrorMessage"] = "Folder name cannot be empty.";
+            return RedirectToAction("Index", new { folderId = parentFolderId });
+        }
+        var folder = new FolderModel
+        {
+            Name = folderName,
+            UserId = user.Id,
+            ParentFolderId = parentFolderId
+        };
+        _context.Folders.Add(folder);
+        await _context.SaveChangesAsync();
+        TempData["SuccessMessage"] = "Folder created successfully!";
+        return RedirectToAction("Index", new { folderId = parentFolderId });
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> RenameFolder(int id, string newName)
+    {
+        var user = await _userManager.GetUserAsync(User);
+        var folder = await _context.Folders.FindAsync(id);
+        if (folder == null || folder.UserId != user.Id)
+        {
+            TempData["ErrorMessage"] = "Folder not found or access denied.";
+            return RedirectToAction("Index");
+        }
+        if (string.IsNullOrWhiteSpace(newName))
+        {
+            TempData["ErrorMessage"] = "Folder name cannot be empty.";
+            return RedirectToAction("Index", new { folderId = folder.ParentFolderId });
+        }
+        folder.Name = newName;
+        await _context.SaveChangesAsync();
+        TempData["SuccessMessage"] = "Folder renamed successfully!";
+        return RedirectToAction("Index", new { folderId = folder.ParentFolderId });
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> DeleteFolder(int id)
+    {
+        var user = await _userManager.GetUserAsync(User);
+        var folder = await _context.Folders
+            .Include(f => f.SubFolders)
+            .Include(f => f.Files)
+            .FirstOrDefaultAsync(f => f.Id == id && f.UserId == user.Id);
+        if (folder == null)
+        {
+            TempData["ErrorMessage"] = "Folder not found or access denied.";
+            return RedirectToAction("Index");
+        }
+        var parentId = folder.ParentFolderId;
+        await DeleteFolderRecursive(folder);
+        TempData["SuccessMessage"] = "Folder and all its contents deleted successfully!";
+        return RedirectToAction("Index", new { folderId = parentId });
+    }
+
+    // Recursively delete all files and subfolders, then the folder itself
+    private async Task DeleteFolderRecursive(FolderModel folder)
+    {
+        // Delete all files in this folder
+        foreach (var file in folder.Files.ToList())
+        {
+            var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", file.FilePath.TrimStart('/'));
+            if (System.IO.File.Exists(filePath))
+            {
+                System.IO.File.Delete(filePath);
+            }
+            _context.Files.Remove(file);
+        }
+        await _context.SaveChangesAsync();
+        // Recursively delete all subfolders
+        foreach (var subfolder in folder.SubFolders.ToList())
+        {
+            var sub = await _context.Folders
+                .Include(f => f.SubFolders)
+                .Include(f => f.Files)
+                .FirstOrDefaultAsync(f => f.Id == subfolder.Id);
+            if (sub != null)
+            {
+                await DeleteFolderRecursive(sub);
+            }
+        }
+        // Remove the folder itself
+        _context.Folders.Remove(folder);
+        await _context.SaveChangesAsync();
+    }
+
+    // Move File - GET (for modal)
+    [HttpGet]
+    public async Task<IActionResult> MoveFile(int id)
+    {
+        var user = await _userManager.GetUserAsync(User);
+        var file = await _context.Files.FindAsync(id);
+        if (file == null || file.UserId != user.Id)
+            return Forbid();
+        var folders = await _context.Folders.Where(f => f.UserId == user.Id).ToListAsync();
+        ViewBag.Folders = folders;
+        ViewBag.CurrentFolderId = file.FolderId;
+        ViewBag.FileId = id;
+        return PartialView("_MoveFileModal");
+    }
+
+    // Move File - POST
+    [HttpPost]
+    public async Task<IActionResult> MoveFile(int id, int? targetFolderId)
+    {
+        var user = await _userManager.GetUserAsync(User);
+        var file = await _context.Files.FindAsync(id);
+        if (file == null || file.UserId != user.Id)
+            return Forbid();
+        if (targetFolderId.HasValue)
+        {
+            var targetFolder = await _context.Folders.FindAsync(targetFolderId);
+            if (targetFolder == null || targetFolder.UserId != user.Id)
+            {
+                TempData["ErrorMessage"] = "Target folder not found or access denied.";
+                return RedirectToAction("Index", new { folderId = file.FolderId });
+            }
+        }
+        file.FolderId = targetFolderId;
+        await _context.SaveChangesAsync();
+        TempData["SuccessMessage"] = "File moved successfully!";
+        return RedirectToAction("Index", new { folderId = targetFolderId });
+    }
+
+    // Move Folder - GET (for modal)
+    [HttpGet]
+    public async Task<IActionResult> MoveFolder(int id)
+    {
+        var user = await _userManager.GetUserAsync(User);
+        var folder = await _context.Folders.Include(f => f.SubFolders).FirstOrDefaultAsync(f => f.Id == id && f.UserId == user.Id);
+        if (folder == null)
+            return Forbid();
+        var allFolders = await _context.Folders.Where(f => f.UserId == user.Id && f.Id != id).ToListAsync();
+        // Exclude descendants
+        var descendants = GetDescendantFolderIds(folder);
+        var selectableFolders = allFolders.Where(f => !descendants.Contains(f.Id)).ToList();
+        ViewBag.Folders = selectableFolders;
+        ViewBag.CurrentParentId = folder.ParentFolderId;
+        ViewBag.FolderId = id;
+        return PartialView("_MoveFolderModal");
+    }
+
+    // Move Folder - POST
+    [HttpPost]
+    public async Task<IActionResult> MoveFolder(int id, int? targetParentFolderId)
+    {
+        var user = await _userManager.GetUserAsync(User);
+        var folder = await _context.Folders.Include(f => f.SubFolders).FirstOrDefaultAsync(f => f.Id == id && f.UserId == user.Id);
+        if (folder == null)
+            return Forbid();
+        if (targetParentFolderId == id || GetDescendantFolderIds(folder).Contains(targetParentFolderId ?? -1))
+        {
+            TempData["ErrorMessage"] = "Cannot move a folder into itself or its descendant.";
+            return RedirectToAction("Index", new { folderId = folder.ParentFolderId });
+        }
+        if (targetParentFolderId.HasValue)
+        {
+            var targetFolder = await _context.Folders.FindAsync(targetParentFolderId);
+            if (targetFolder == null || targetFolder.UserId != user.Id)
+            {
+                TempData["ErrorMessage"] = "Target folder not found or access denied.";
+                return RedirectToAction("Index", new { folderId = folder.ParentFolderId });
+            }
+        }
+        folder.ParentFolderId = targetParentFolderId;
+        await _context.SaveChangesAsync();
+        TempData["SuccessMessage"] = "Folder moved successfully!";
+        return RedirectToAction("Index", new { folderId = targetParentFolderId });
+    }
+
+    // Helper to get all descendant folder IDs (to prevent moving into self/descendant)
+    private List<int> GetDescendantFolderIds(FolderModel folder)
+    {
+        var ids = new List<int>();
+        if (folder.SubFolders != null)
+        {
+            foreach (var sub in folder.SubFolders)
+            {
+                ids.Add(sub.Id);
+                ids.AddRange(GetDescendantFolderIds(sub));
+            }
+        }
+        return ids;
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> BulkDelete(List<int> fileIds)
+    {
+        var user = await _userManager.GetUserAsync(User);
+        var files = await _context.Files.Where(f => fileIds.Contains(f.Id) && f.UserId == user.Id).ToListAsync();
+        foreach (var file in files)
+        {
+            var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", file.FilePath.TrimStart('/'));
+            if (System.IO.File.Exists(filePath))
+            {
+                System.IO.File.Delete(filePath);
+            }
+            _context.Files.Remove(file);
+        }
+        await _context.SaveChangesAsync();
+        TempData["SuccessMessage"] = $"{files.Count} file(s) deleted.";
+        return RedirectToAction("Index");
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> BulkMove(List<int> fileIds, int? targetFolderId)
+    {
+        var user = await _userManager.GetUserAsync(User);
+        if (targetFolderId == null)
+        {
+            // Show modal to select target folder
+            var folders = await _context.Folders.Where(f => f.UserId == user.Id).ToListAsync();
+            ViewBag.Folders = folders;
+            ViewBag.FileIds = fileIds;
+            return PartialView("_BulkMoveModal");
+        }
+        var files = await _context.Files.Where(f => fileIds.Contains(f.Id) && f.UserId == user.Id).ToListAsync();
+        foreach (var file in files)
+        {
+            file.FolderId = targetFolderId;
+        }
+        await _context.SaveChangesAsync();
+        TempData["SuccessMessage"] = $"{files.Count} file(s) moved.";
+        return RedirectToAction("Index", new { folderId = targetFolderId });
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> BulkDownload(List<int> fileIds)
+    {
+        var user = await _userManager.GetUserAsync(User);
+        var files = await _context.Files.Where(f => fileIds.Contains(f.Id) && (f.UserId == user.Id)).ToListAsync();
+        if (!files.Any())
+            return NotFound("No files found.");
+        var zipName = $"files_{DateTime.Now:yyyyMMddHHmmss}.zip";
+        using (var ms = new MemoryStream())
+        {
+            using (var archive = new System.IO.Compression.ZipArchive(ms, System.IO.Compression.ZipArchiveMode.Create, true))
+            {
+                foreach (var file in files)
+                {
+                    var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", file.FilePath.TrimStart('/'));
+                    if (System.IO.File.Exists(filePath))
+                    {
+                        var entry = archive.CreateEntry(file.FileName);
+                        using (var entryStream = entry.Open())
+                        using (var fileStream = System.IO.File.OpenRead(filePath))
+                        {
+                            await fileStream.CopyToAsync(entryStream);
+                        }
+                    }
+                }
+            }
+            ms.Position = 0;
+            return File(ms.ToArray(), "application/zip", zipName);
+        }
     }
 }
 

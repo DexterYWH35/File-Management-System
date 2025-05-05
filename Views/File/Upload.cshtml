@@ -21,13 +21,19 @@
                     }
 
                     <form asp-controller="File" asp-action="Upload" method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+                        @if (ViewBag.FolderId != null)
+                        {
+                            <input type="hidden" name="folderId" value="@ViewBag.FolderId" />
+                        }
                         <div class="mb-4">
-                            <div class="input-group">
-                                <input type="file" name="file" class="form-control" id="fileInput" required />
-                                <button type="button" class="btn btn-outline-secondary" onclick="document.getElementById('fileInput').click()">
-                                    <i class="bi bi-folder2-open"></i> Browse
-                                </button>
+                            <div id="drop-area" class="border border-2 border-primary rounded-3 p-4 text-center mb-3 bg-light" style="cursor: pointer; transition: border-color 0.2s;">
+                                <i class="bi bi-cloud-arrow-up display-4 text-primary mb-2"></i>
+                                <div class="fw-semibold mb-2">Drag & Drop your files here</div>
+                                <div class="text-muted small">or click to select files</div>
+                                <input type="file" name="files" class="form-control d-none" id="fileInput" multiple required />
                             </div>
+                            <!-- Staging Area for Selected Files -->
+                            <div id="staging-area" class="mb-2"></div>
                             <div class="form-text text-muted">
                                 Supported file types: Images, Documents, PDFs, Videos, Audio
                             </div>
@@ -69,6 +75,36 @@
                     </ul>
                 </div>
             </div>
+
+            <!-- Recently Uploaded Files Section -->
+            @if (ViewBag.RecentFiles != null && ((IEnumerable<FileManagementSystem.Models.FileModel>)ViewBag.RecentFiles).Any())
+            {
+                <div class="card shadow-sm mt-4">
+                    <div class="card-header bg-light">
+                        <h6 class="card-title mb-0">
+                            <i class="bi bi-clock-history"></i> Recently Uploaded Files
+                        </h6>
+                    </div>
+                    <div class="card-body p-0">
+                        <ul class="list-group list-group-flush">
+                            @foreach (var file in (IEnumerable<FileManagementSystem.Models.FileModel>)ViewBag.RecentFiles)
+                            {
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <i class="bi bi-file-earmark-text text-primary me-2"></i>
+                                        <span class="fw-semibold">@file.FileName</span>
+                                        <span class="text-muted small ms-2">@file.UploadDate.ToString("MMM dd, yyyy HH:mm")</span>
+                                    </div>
+                                    <div class="d-flex gap-2">
+                                        <a asp-action="Download" asp-route-id="@file.Id" class="btn btn-sm btn-outline-success" title="Download"><i class="bi bi-download"></i></a>
+                                        <a asp-action="Preview" asp-route-id="@file.Id" class="btn btn-sm btn-outline-primary" title="Preview"><i class="bi bi-eye"></i></a>
+                                    </div>
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                </div>
+            }
         </div>
     </div>
 </div>
@@ -90,5 +126,75 @@
                     }, false)
                 })
         })()
+
+        // Drag and drop logic for multiple files
+        const dropArea = document.getElementById('drop-area');
+        const fileInput = document.getElementById('fileInput');
+        const stagingArea = document.getElementById('staging-area');
+        let stagedFiles = [];
+
+        dropArea.addEventListener('click', () => fileInput.click());
+        dropArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropArea.classList.add('border-success');
+            dropArea.classList.remove('border-primary');
+        });
+        dropArea.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            dropArea.classList.remove('border-success');
+            dropArea.classList.add('border-primary');
+        });
+        dropArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropArea.classList.remove('border-success');
+            dropArea.classList.add('border-primary');
+            if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                addFilesToStaging(e.dataTransfer.files);
+            }
+        });
+        fileInput.addEventListener('change', function() {
+            addFilesToStaging(fileInput.files);
+        });
+
+        function addFilesToStaging(fileList) {
+            for (let i = 0; i < fileList.length; i++) {
+                // Prevent duplicates by name+size
+                if (!stagedFiles.some(f => f.name === fileList[i].name && f.size === fileList[i].size)) {
+                    stagedFiles.push(fileList[i]);
+                }
+            }
+            updateStagingArea();
+        }
+
+        function updateStagingArea() {
+            stagingArea.innerHTML = '';
+            if (stagedFiles.length === 0) {
+                stagingArea.innerHTML = '<div class="text-muted small">No files selected.</div>';
+                fileInput.value = '';
+                return;
+            }
+            const ul = document.createElement('ul');
+            ul.className = 'list-group';
+            stagedFiles.forEach((file, idx) => {
+                const li = document.createElement('li');
+                li.className = 'list-group-item d-flex justify-content-between align-items-center';
+                li.innerHTML = `<span><i class='bi bi-file-earmark-text text-primary me-2'></i> ${file.name} <span class='text-muted small ms-2'>${(file.size/1024).toFixed(1)} KB</span></span>` +
+                    `<button type='button' class='btn btn-sm btn-outline-danger' onclick='removeStagedFile(${idx})'><i class='bi bi-x'></i></button>`;
+                ul.appendChild(li);
+            });
+            stagingArea.appendChild(ul);
+            // Update the file input's FileList (not directly possible, so use DataTransfer)
+            const dt = new DataTransfer();
+            stagedFiles.forEach(f => dt.items.add(f));
+            fileInput.files = dt.files;
+        }
+
+        window.removeStagedFile = function(idx) {
+            stagedFiles.splice(idx, 1);
+            updateStagingArea();
+        };
+
+        // Initialize staging area
+        updateStagingArea();
     </script>
 }

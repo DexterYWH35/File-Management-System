@@ -23,6 +23,7 @@ namespace FileManagementSystem.Data
             public DbSet<FileModel> Files { get; set; } 
             public DbSet<Label> Labels { get; set; }
             public DbSet<FileLabel> FileLabels { get; set; }
+            public DbSet<FolderModel> Folders { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -40,6 +41,19 @@ namespace FileManagementSystem.Data
                 .HasOne(fl => fl.Label)
                 .WithMany(l => l.FileLabels)
                 .HasForeignKey(fl => fl.LabelId);
+
+            // Folder relationships
+            modelBuilder.Entity<FolderModel>()
+                .HasMany(f => f.SubFolders)
+                .WithOne(f => f.ParentFolder)
+                .HasForeignKey(f => f.ParentFolderId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<FolderModel>()
+                .HasMany(f => f.Files)
+                .WithOne(f => f.Folder)
+                .HasForeignKey(f => f.FolderId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

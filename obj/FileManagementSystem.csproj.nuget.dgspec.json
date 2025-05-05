@@ -65,6 +65,10 @@
               "suppressParent": "All",
               "target": "Package",
               "version": "[9.0.3, )"
+            },
+            "Syncfusion.Pdf.Net.Core": {
+              "target": "Package",
+              "version": "[29.1.40, )"
             }
           },
           "imports": [

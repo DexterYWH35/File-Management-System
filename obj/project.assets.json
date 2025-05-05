@@ -884,6 +884,15 @@
           "buildTransitive/net8.0/_._": {}
         }
       },
+      "Microsoft.NETCore.Platforms/2.0.0": {
+        "type": "package",
+        "compile": {
+          "lib/netstandard1.0/_._": {}
+        },
+        "runtime": {
+          "lib/netstandard1.0/_._": {}
+        }
+      },
       "Mono.TextTemplating/3.0.0": {
         "type": "package",
         "dependencies": {
@@ -1032,6 +1041,46 @@
         },
         "runtime": {
           "lib/net6.0/SQLitePCLRaw.provider.e_sqlite3.dll": {}
+        }
+      },
+      "Syncfusion.Compression.Net.Core/29.1.40": {
+        "type": "package",
+        "compile": {
+          "lib/net9.0/Syncfusion.Compression.Portable.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/net9.0/Syncfusion.Compression.Portable.dll": {
+            "related": ".xml"
+          }
+        }
+      },
+      "Syncfusion.Licensing/29.1.40": {
+        "type": "package",
+        "compile": {
+          "lib/net9.0/Syncfusion.Licensing.dll": {}
+        },
+        "runtime": {
+          "lib/net9.0/Syncfusion.Licensing.dll": {}
+        }
+      },
+      "Syncfusion.Pdf.Net.Core/29.1.40": {
+        "type": "package",
+        "dependencies": {
+          "Syncfusion.Compression.Net.Core": "29.1.40",
+          "Syncfusion.Licensing": "29.1.40",
+          "System.Text.Encoding.CodePages": "4.4.0"
+        },
+        "compile": {
+          "lib/net9.0/Syncfusion.Pdf.Portable.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/net9.0/Syncfusion.Pdf.Portable.dll": {
+            "related": ".xml"
+          }
         }
       },
       "System.CodeDom/6.0.0": {
@@ -1250,6 +1299,26 @@
         },
         "build": {
           "buildTransitive/netcoreapp3.1/_._": {}
+        }
+      },
+      "System.Text.Encoding.CodePages/4.4.0": {
+        "type": "package",
+        "dependencies": {
+          "Microsoft.NETCore.Platforms": "2.0.0"
+        },
+        "compile": {
+          "ref/netstandard2.0/System.Text.Encoding.CodePages.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/netstandard2.0/System.Text.Encoding.CodePages.dll": {}
+        },
+        "runtimeTargets": {
+          "runtimes/win/lib/netcoreapp2.0/System.Text.Encoding.CodePages.dll": {
+            "assetType": "runtime",
+            "rid": "win"
+          }
         }
       },
       "System.Text.Json/9.0.3": {
@@ -3095,6 +3164,23 @@
         "useSharedDesignerContext.txt"
       ]
     },
+    "Microsoft.NETCore.Platforms/2.0.0": {
+      "sha512": "VdLJOCXhZaEMY7Hm2GKiULmn7IEPFE4XC5LPSfBVCUIA8YLZVh846gtfBJalsPQF2PlzdD7ecX7DZEulJ402ZQ==",
+      "type": "package",
+      "path": "microsoft.netcore.platforms/2.0.0",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "LICENSE.TXT",
+        "THIRD-PARTY-NOTICES.TXT",
+        "lib/netstandard1.0/_._",
+        "microsoft.netcore.platforms.2.0.0.nupkg.sha512",
+        "microsoft.netcore.platforms.nuspec",
+        "runtime.json",
+        "useSharedDesignerContext.txt",
+        "version.txt"
+      ]
+    },
     "Mono.TextTemplating/3.0.0": {
       "sha512": "YqueG52R/Xej4VVbKuRIodjiAhV0HR/XVbLbNrJhCZnzjnSjgMJ/dCdV0akQQxavX6hp/LC6rqLGLcXeQYU7XA==",
       "type": "package",
@@ -3202,6 +3288,67 @@
         "lib/netstandard2.0/SQLitePCLRaw.provider.e_sqlite3.dll",
         "sqlitepclraw.provider.e_sqlite3.2.1.10.nupkg.sha512",
         "sqlitepclraw.provider.e_sqlite3.nuspec"
+      ]
+    },
+    "Syncfusion.Compression.Net.Core/29.1.40": {
+      "sha512": "xHJvxMnlrSoCpWm3Hj7nWaddX3SedqU/iaJoMMKiXeyir64M2Kvt7ZDRoWL0l+RECmKTu3DbdE2z1sa22NGCpw==",
+      "type": "package",
+      "path": "syncfusion.compression.net.core/29.1.40",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "LICENSE.txt",
+        "lib/net8.0/Syncfusion.Compression.Portable.dll",
+        "lib/net8.0/Syncfusion.Compression.Portable.xml",
+        "lib/net9.0/Syncfusion.Compression.Portable.dll",
+        "lib/net9.0/Syncfusion.Compression.Portable.xml",
+        "lib/netstandard2.0/Syncfusion.Compression.Portable.dll",
+        "lib/netstandard2.0/Syncfusion.Compression.Portable.xml",
+        "syncfusion.compression.net.core.29.1.40.nupkg.sha512",
+        "syncfusion.compression.net.core.nuspec",
+        "syncfusion_logo.png"
+      ]
+    },
+    "Syncfusion.Licensing/29.1.40": {
+      "sha512": "nt2AogC2Zui0fJMrHa7CPzYPapebPVIP/9hN2/fjT/665Z4MgM3//mX8pPzXAKIuKQW0TcK+rfBrCG+EhLMEiw==",
+      "type": "package",
+      "path": "syncfusion.licensing/29.1.40",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "LICENSE.txt",
+        "README.md",
+        "lib/MonoAndroid90/Syncfusion.Licensing.dll",
+        "lib/Xamarin.Mac/Syncfusion.Licensing.dll",
+        "lib/Xamarin.iOS10/Syncfusion.Licensing.dll",
+        "lib/net462/Syncfusion.Licensing.dll",
+        "lib/net8.0/Syncfusion.Licensing.dll",
+        "lib/net9.0/Syncfusion.Licensing.dll",
+        "lib/netstandard2.0/Syncfusion.Licensing.dll",
+        "lib/uap10.0/Syncfusion.Licensing.dll",
+        "syncfusion.licensing.29.1.40.nupkg.sha512",
+        "syncfusion.licensing.nuspec",
+        "syncfusion_logo.png"
+      ]
+    },
+    "Syncfusion.Pdf.Net.Core/29.1.40": {
+      "sha512": "6Nl7Ci5YEuPeHtIrnGxc9d2910IF0ptRnfisjOVM0UEdQ3zg6J1XT7oeD47fnu4IcS6TpgxjUCGkROTYTsjTYA==",
+      "type": "package",
+      "path": "syncfusion.pdf.net.core/29.1.40",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "LICENSE.txt",
+        "README.md",
+        "lib/net8.0/Syncfusion.Pdf.Portable.dll",
+        "lib/net8.0/Syncfusion.Pdf.Portable.xml",
+        "lib/net9.0/Syncfusion.Pdf.Portable.dll",
+        "lib/net9.0/Syncfusion.Pdf.Portable.xml",
+        "lib/netstandard2.0/Syncfusion.Pdf.Portable.dll",
+        "lib/netstandard2.0/Syncfusion.Pdf.Portable.xml",
+        "syncfusion.pdf.net.core.29.1.40.nupkg.sha512",
+        "syncfusion.pdf.net.core.nuspec",
+        "syncfusion_logo.png"
       ]
     },
     "System.CodeDom/6.0.0": {
@@ -3542,6 +3689,54 @@
         "useSharedDesignerContext.txt"
       ]
     },
+    "System.Text.Encoding.CodePages/4.4.0": {
+      "sha512": "6JX7ZdaceBiLKLkYt8zJcp4xTJd1uYyXXEkPw6mnlUIjh1gZPIVKPtRXPmY5kLf6DwZmf5YLwR3QUrRonl7l0A==",
+      "type": "package",
+      "path": "system.text.encoding.codepages/4.4.0",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "LICENSE.TXT",
+        "THIRD-PARTY-NOTICES.TXT",
+        "lib/MonoAndroid10/_._",
+        "lib/MonoTouch10/_._",
+        "lib/net46/System.Text.Encoding.CodePages.dll",
+        "lib/net461/System.Text.Encoding.CodePages.dll",
+        "lib/netstandard1.3/System.Text.Encoding.CodePages.dll",
+        "lib/netstandard2.0/System.Text.Encoding.CodePages.dll",
+        "lib/xamarinios10/_._",
+        "lib/xamarinmac20/_._",
+        "lib/xamarintvos10/_._",
+        "lib/xamarinwatchos10/_._",
+        "ref/MonoAndroid10/_._",
+        "ref/MonoTouch10/_._",
+        "ref/netstandard1.3/System.Text.Encoding.CodePages.dll",
+        "ref/netstandard1.3/System.Text.Encoding.CodePages.xml",
+        "ref/netstandard1.3/de/System.Text.Encoding.CodePages.xml",
+        "ref/netstandard1.3/es/System.Text.Encoding.CodePages.xml",
+        "ref/netstandard1.3/fr/System.Text.Encoding.CodePages.xml",
+        "ref/netstandard1.3/it/System.Text.Encoding.CodePages.xml",
+        "ref/netstandard1.3/ja/System.Text.Encoding.CodePages.xml",
+        "ref/netstandard1.3/ko/System.Text.Encoding.CodePages.xml",
+        "ref/netstandard1.3/ru/System.Text.Encoding.CodePages.xml",
+        "ref/netstandard1.3/zh-hans/System.Text.Encoding.CodePages.xml",
+        "ref/netstandard1.3/zh-hant/System.Text.Encoding.CodePages.xml",
+        "ref/netstandard2.0/System.Text.Encoding.CodePages.dll",
+        "ref/netstandard2.0/System.Text.Encoding.CodePages.xml",
+        "ref/xamarinios10/_._",
+        "ref/xamarinmac20/_._",
+        "ref/xamarintvos10/_._",
+        "ref/xamarinwatchos10/_._",
+        "runtimes/win/lib/net461/System.Text.Encoding.CodePages.dll",
+        "runtimes/win/lib/netcoreapp2.0/System.Text.Encoding.CodePages.dll",
+        "runtimes/win/lib/netstandard1.3/System.Text.Encoding.CodePages.dll",
+        "runtimes/win/lib/netstandard2.0/System.Text.Encoding.CodePages.dll",
+        "system.text.encoding.codepages.4.4.0.nupkg.sha512",
+        "system.text.encoding.codepages.nuspec",
+        "useSharedDesignerContext.txt",
+        "version.txt"
+      ]
+    },
     "System.Text.Json/9.0.3": {
       "sha512": "r2JRkLjsYrq5Dpo7+y3Wa73OfirZPdVhxiTJWwZ+oJM7FOAe0LkM3GlH+pgkNRdd1G1kwUbmRCdmh4uoaWwu1g==",
       "type": "package",
@@ -3649,7 +3844,8 @@
       "Microsoft.AspNetCore.Identity.EntityFrameworkCore >= 9.0.3",
       "Microsoft.AspNetCore.Identity.UI >= 9.0.3",
       "Microsoft.EntityFrameworkCore.Sqlite >= 9.0.3",
-      "Microsoft.EntityFrameworkCore.Tools >= 9.0.3"
+      "Microsoft.EntityFrameworkCore.Tools >= 9.0.3",
+      "Syncfusion.Pdf.Net.Core >= 29.1.40"
     ]
   },
   "packageFolders": {
@@ -3716,6 +3912,10 @@
             "suppressParent": "All",
             "target": "Package",
             "version": "[9.0.3, )"
+          },
+          "Syncfusion.Pdf.Net.Core": {
+            "target": "Package",
+            "version": "[29.1.40, )"
           }
         },
         "imports": [
@@ -3740,13 +3940,5 @@
         "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/9.0.201/PortableRuntimeIdentifierGraph.json"
       }
     }
-  },
-  "logs": [
-    {
-      "code": "NU1900",
-      "level": "Warning",
-      "warningLevel": 1,
-      "message": "Error occurred while getting package vulnerability data: Unable to load the service index for source https://api.nuget.org/v3/index.json."
-    }
-  ]
+  }
 }
