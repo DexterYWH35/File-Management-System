@@ -3653,27 +3653,24 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\Hangy\\.nuget\\packages\\": {}
+    "/Users/dexteryap/.nuget/packages/": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\C#\\File-Management-System\\FileManagementSystem.csproj",
+      "projectUniqueName": "/Users/dexteryap/C#/File-Management-System/FileManagementSystem.csproj",
       "projectName": "FileManagementSystem",
-      "projectPath": "C:\\C#\\File-Management-System\\FileManagementSystem.csproj",
-      "packagesPath": "C:\\Users\\Hangy\\.nuget\\packages\\",
-      "outputPath": "C:\\C#\\File-Management-System\\obj\\",
+      "projectPath": "/Users/dexteryap/C#/File-Management-System/FileManagementSystem.csproj",
+      "packagesPath": "/Users/dexteryap/.nuget/packages/",
+      "outputPath": "/Users/dexteryap/C#/File-Management-System/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "C:\\Users\\Hangy\\AppData\\Roaming\\NuGet\\NuGet.Config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        "/Users/dexteryap/.nuget/NuGet/NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net9.0"
       ],
       "sources": {
-        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-        "C:\\Program Files\\dotnet\\library-packs": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
@@ -3740,8 +3737,16 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.203/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/9.0.201/PortableRuntimeIdentifierGraph.json"
       }
     }
-  }
+  },
+  "logs": [
+    {
+      "code": "NU1900",
+      "level": "Warning",
+      "warningLevel": 1,
+      "message": "Error occurred while getting package vulnerability data: Unable to load the service index for source https://api.nuget.org/v3/index.json."
+    }
+  ]
 }
