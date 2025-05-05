@@ -15,6 +15,8 @@ This is a File Management System built using ASP.NET Core MVC, designed to allow
 
 4. Users can log in using their email and manage their profile
 
+5. Users can create folders and store files into different folder for a more structured way to manage their files 
+
 # Role-Based Access
 
 1. Users can upload, view, update, and delete only their own files
@@ -49,7 +51,7 @@ Ensure you have the following installed:
 
 # Future Improvements
 
-1. Implement cloud storage (AWS S3)
+1. Implement cloud storage (AWS S3) //Hosted on AWS but since its need to pay, I will be shutting it down and only reboot for display purpose.
 
 2. Add file sharing functionality
 
