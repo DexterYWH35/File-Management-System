@@ -58,6 +58,11 @@ Ensure you have the following installed:
 3. Implement an advanced search feature
 
 
+
+<img width="1440" alt="Screenshot 2025-05-05 at 5 58 56 PM" src="https://github.com/user-attachments/assets/68300952-070d-4c40-90ef-7e9f3f2a5846" />
+
+
+
 # Remarks
 1. Change Program.cs make sure listening to http://0.0.0.0:5000
 2. Change the appsetting.json for publish folder, make sure pointing to the right database (under/var/www/projectFolder)
