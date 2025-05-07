@@ -21,8 +21,8 @@
                     {
                         <div class="mb-3">
                             <label for="targetFolderId" class="form-label">Select Target Folder</label>
-                            <select class="form-select" id="targetFolderId" name="targetFolderId" required>
-                                <option value="">-- Select Folder --</option>
+                            <select class="form-select" id="targetFolderId" name="targetFolderId">
+                                <option value="">-- Move to Root --</option>
                                 @foreach (var folder in folders)
                                 {
                                     if (folder.Id == currentFolderId)
@@ -35,6 +35,9 @@
                                     }
                                 }
                             </select>
+                            <div class="form-text text-muted mt-2">
+                                <i class="bi bi-info-circle"></i> Select "Move to Root" to move the file out of any folder.
+                            </div>
                         </div>
                     }
                 </div>

@@ -242,5 +242,77 @@ namespace FileManagementSystem.Controllers
 
             return View(viewModel);
         }
+
+        [HttpGet]
+        [Authorize]
+        public IActionResult ChangeEmail()
+        {
+            var user = _userManager.GetUserAsync(User).Result;
+            var model = new ChangeEmailViewModel
+            {
+                CurrentEmail = user.Email
+            };
+            return View(model);
+        }
+
+        [HttpPost]
+        [Authorize]
+        public async Task<IActionResult> ChangeEmail(ChangeEmailViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return RedirectToAction("Login");
+            }
+
+            // Verify current email matches
+            if (user.Email != model.CurrentEmail)
+            {
+                ModelState.AddModelError(string.Empty, "Current email does not match your account email.");
+                return View(model);
+            }
+
+            // Verify password
+            var isPasswordValid = await _userManager.CheckPasswordAsync(user, model.Password);
+            if (!isPasswordValid)
+            {
+                ModelState.AddModelError(string.Empty, "Password is incorrect.");
+                return View(model);
+            }
+
+            // Check if new email is already taken
+            var existingUser = await _userManager.FindByEmailAsync(model.NewEmail);
+            if (existingUser != null)
+            {
+                ModelState.AddModelError(string.Empty, "This email is already in use by another account.");
+                return View(model);
+            }
+
+            // Update email
+            var token = await _userManager.GenerateChangeEmailTokenAsync(user, model.NewEmail);
+            var result = await _userManager.ChangeEmailAsync(user, model.NewEmail, token);
+
+            if (result.Succeeded)
+            {
+                // Update username to match new email
+                user.UserName = model.NewEmail;
+                await _userManager.UpdateAsync(user);
+
+                TempData["SuccessMessage"] = "Your email has been changed successfully.";
+                return RedirectToAction("Profile");
+            }
+
+            foreach (var error in result.Errors)
+            {
+                ModelState.AddModelError(string.Empty, error.Description);
+            }
+
+            return View(model);
+        }
     }
 }

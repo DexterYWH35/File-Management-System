@@ -1,6 +1,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Identity;
 
 namespace FileManagementSystem.Models
 {
@@ -16,6 +17,7 @@ namespace FileManagementSystem.Models
 
         [Required]
         public string UserId { get; set; }
+        public virtual IdentityUser User { get; set; }
 
         [Required]
         public DateTime UploadDate { get; set; } = DateTime.UtcNow;
@@ -58,6 +60,9 @@ namespace FileManagementSystem.Models
         public List<string> Labels { get; set; } = new List<string>();
         public string FileType { get; set; }
         public long FileSize { get; set; }
+        public int? FolderId { get; set; }
+        public string FolderName { get; set; }
+        public string FilePath { get; set; }
     }
 
     public class FolderModel

@@ -6,24 +6,28 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="bulkMoveModalLabel">Move Files</h5>
+                <h5 class="modal-title" id="bulkMoveModalLabel">Move Selected Files</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form asp-action="BulkMove" method="post">
-                @foreach (var id in fileIds)
+            <form asp-action="BulkMove" method="post" id="bulkMoveForm">
+                @foreach (var fileId in fileIds)
                 {
-                    <input type="hidden" name="fileIds" value="@id" />
+                    <input type="hidden" name="fileIds" value="@fileId" />
                 }
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label for="targetFolderId" class="form-label">Select Target Folder</label>
+                        <label for="targetFolderId" class="form-label">Select Destination Folder</label>
                         <select class="form-select" id="targetFolderId" name="targetFolderId" required>
                             <option value="">-- Select Folder --</option>
-                            @foreach (var folder in folders)
+                            @if (folders != null && folders.Any())
                             {
-                                <option value="@folder.Id">@folder.Name</option>
+                                @foreach (var folder in folders)
+                                {
+                                    <option value="@folder.Id">@folder.Name</option>
+                                }
                             }
                         </select>
+                        <div class="form-text">Select a folder to move the selected files to.</div>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -33,4 +37,26 @@
             </form>
         </div>
     </div>
-</div> 
+</div>
+
+<script>
+    document.getElementById('bulkMoveForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        fetch('/File/BulkMove', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => {
+            if (response.ok) {
+                window.location.reload();
+            } else {
+                throw new Error('Move operation failed');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Failed to move files. Please try again.');
+        });
+    });
+</script> 

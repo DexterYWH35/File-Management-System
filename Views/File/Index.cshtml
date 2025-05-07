@@ -35,13 +35,16 @@
             <form asp-controller="File" asp-action="Search" method="get" class="row g-3">
                 <div class="col-md-6">
                     <div class="input-group">
-                        <input type="text" name="searchTerm" class="form-control" placeholder="Search files..." value="@Context.Request.Query["searchTerm"]" />
+                        <input type="text" name="searchTerm" class="form-control" placeholder="Search files..." value="@ViewBag.SearchTerm" />
                         <button type="submit" class="btn btn-primary">
                             <i class="bi bi-search"></i> Search
                         </button>
-                        <a href="@Url.Action("Index", "File")" class="btn btn-outline-secondary">
-                            <i class="bi bi-x-circle"></i> Clear
-                        </a>
+                        @if (!string.IsNullOrEmpty(ViewBag.SearchTerm) || ViewBag.SelectedLabelId != null)
+                        {
+                            <a href="@Url.Action("Index", "File")" class="btn btn-outline-secondary">
+                                <i class="bi bi-x-circle"></i> Clear
+                            </a>
+                        }
                     </div>
                 </div>
                 <div class="col-md-6">
@@ -52,14 +55,7 @@
                             {
                                 @foreach (var label in ViewBag.Labels)
                                 {
-                                    if (ViewBag.SelectedLabelId != null && ViewBag.SelectedLabelId == label.Id)
-                                    {
-                                        <option value="@label.Id" selected>@label.Name</option>
-                                    }
-                                    else
-                                    {
-                                        <option value="@label.Id">@label.Name</option>
-                                    }
+                                    <option value="@label.Id" selected="@(ViewBag.SelectedLabelId != null && ViewBag.SelectedLabelId == label.Id)">@label.Name</option>
                                 }
                             }
                         </select>
@@ -200,12 +196,9 @@
                                     <button type="button" class="btn btn-outline-info border-0" onclick="openMoveFileModal(@file.Id)" title="Move File" data-bs-toggle="tooltip">
                                         <i class="bi bi-arrow-left-right"></i>
                                     </button>
-                                    <form asp-action="Delete" method="post" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this file?');">
-                                        <input type="hidden" name="id" value="@file.Id" />
-                                        <button type="submit" class="btn btn-outline-danger border-0" title="Delete" data-bs-toggle="tooltip">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
-                                    </form>
+                                    <button type="button" class="btn btn-outline-danger border-0" onclick="openDeleteFileModal(@file.Id, '@file.FileName')" title="Delete" data-bs-toggle="tooltip">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -218,6 +211,19 @@
                             <div class="mb-2">
                                 <small class="text-muted">
                                     <i class="bi bi-hdd"></i> Size: @(file.FileSize / 1024) KB
+                                </small>
+                            </div>
+                            <div class="mb-2">
+                                <small class="text-muted">
+                                    <i class="bi bi-folder"></i> Location: 
+                                    @if (file.FolderId == null)
+                                    {
+                                        <span class="text-primary">Root</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-primary">@file.FolderName</span>
+                                    }
                                 </small>
                             </div>
                             @if (file.Labels != null && file.Labels.Any())
@@ -359,7 +365,7 @@
         });
         bulkMove.addEventListener('click', function(e) {
             e.preventDefault();
-            // If no target folder yet, show modal
+            // Show modal for move operation
             fetch('/File/BulkMove', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -367,18 +373,72 @@
             })
             .then(response => response.text())
             .then(html => {
+                // Remove any existing modal
+                const existingModal = document.getElementById('bulkMoveModal');
+                if (existingModal) {
+                    existingModal.remove();
+                }
+                // Add the new modal
                 document.body.insertAdjacentHTML('beforeend', html);
                 var modal = new bootstrap.Modal(document.getElementById('bulkMoveModal'));
                 modal.show();
                 document.getElementById('bulkMoveModal').addEventListener('hidden.bs.modal', function () {
-                    document.getElementById('bulkMoveModal').remove();
+                    this.remove();
                 });
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Failed to show move dialog. Please try again.');
             });
         });
         bulkDownload.addEventListener('click', function(e) {
             e.preventDefault();
             submitBulkAction('Download');
         });
+
+        // Delete File Modal logic
+        function openDeleteFileModal(fileId, fileName) {
+            const modalHtml = `
+                <div class="modal fade" id="deleteFileModal" tabindex="-1" aria-labelledby="deleteFileModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="deleteFileModalLabel">Confirm Delete</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <p>Are you sure you want to delete the file "<strong>${fileName}</strong>"?</p>
+                                <p class="text-danger mb-0"><i class="bi bi-exclamation-triangle-fill"></i> This action cannot be undone.</p>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <form action="/File/Delete" method="post" style="display:inline;">
+                                    <input type="hidden" name="id" value="${fileId}" />
+                                    <button type="submit" class="btn btn-danger">Delete</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+
+            // Remove any existing modal
+            const existingModal = document.getElementById('deleteFileModal');
+            if (existingModal) {
+                existingModal.remove();
+            }
+
+            // Add the new modal to the body
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+
+            // Show the modal
+            const modal = new bootstrap.Modal(document.getElementById('deleteFileModal'));
+            modal.show();
+
+            // Remove the modal from DOM when hidden
+            document.getElementById('deleteFileModal').addEventListener('hidden.bs.modal', function () {
+                this.remove();
+            });
+        }
     </script>
     <style>
     .btn[style*="background: none"]:hover {

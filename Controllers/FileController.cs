@@ -16,6 +16,7 @@ using Microsoft.AspNetCore.Hosting;
 using Syncfusion.Pdf;
 using Syncfusion.Pdf.Graphics;
 using Syncfusion.Drawing;
+using System.Security.Claims;
 
 [Authorize] // Only logged-in users can upload files
 public class FileController : Controller
@@ -129,18 +130,40 @@ public class FileController : Controller
             .Where(f => f.FolderId == folderId && f.UserId == user.Id)
             .Include(f => f.FileLabels)
                 .ThenInclude(fl => fl.Label)
+            .Include(f => f.User)
             .OrderByDescending(f => f.UploadDate)
             .Select(f => new FileViewModel
             {
                 Id = f.Id,
                 FileName = f.FileName,
                 UserId = f.UserId,
+                UserName = f.User.UserName,
                 UploadDate = f.UploadDate,
                 Labels = f.FileLabels.Select(fl => fl.Label.Name).ToList(),
                 FileType = GetFileType(f.FileName),
-                FileSize = new FileInfo(Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", f.FilePath.TrimStart('/'))).Length
+                FileSize = 0, // We'll update this after the query
+                FolderId = f.FolderId,
+                FolderName = f.Folder != null ? f.Folder.Name : null,
+                FilePath = f.FilePath // Add this to access the path later
             })
             .ToListAsync();
+
+        // Update file sizes after the query
+        foreach (var file in files)
+        {
+            try
+            {
+                var fullPath = Path.Combine(_webHostEnvironment.WebRootPath, file.FilePath.TrimStart('/'));
+                if (System.IO.File.Exists(fullPath))
+                {
+                    file.FileSize = new FileInfo(fullPath).Length;
+                }
+            }
+            catch
+            {
+                file.FileSize = 0;
+            }
+        }
 
         ViewBag.Folders = folders;
         ViewBag.CurrentFolderId = folderId;
@@ -201,7 +224,7 @@ public class FileController : Controller
         {
             return RedirectToAction("AdminDashboard", "File");
         }
-        return RedirectToAction("Index", "File");
+        return RedirectToAction("Index", new { folderId = file.FolderId });
     }
 
     [HttpGet]
@@ -365,15 +388,18 @@ public class FileController : Controller
         }
 
         // Start with base query
-        IQueryable<FileModel> query = _context.Files
+        var query = _context.Files
             .Where(f => f.UserId == user.Id)
             .Include(f => f.FileLabels)
-                .ThenInclude(fl => fl.Label);
+                .ThenInclude(fl => fl.Label)
+            .Include(f => f.User)
+            .Include(f => f.Folder)
+            .AsQueryable();
 
         // Apply text search if provided
         if (!string.IsNullOrEmpty(searchTerm))
         {
-            string normalizedSearchTerm = searchTerm.ToLower().Replace(" ", "");
+            string normalizedSearchTerm = searchTerm.ToLower();
             query = query.Where(f => f.FileName.ToLower().Contains(normalizedSearchTerm));
         }
 
@@ -390,12 +416,33 @@ public class FileController : Controller
                 Id = f.Id,
                 FileName = f.FileName,
                 UserId = f.UserId,
+                UserName = f.User.UserName,
                 UploadDate = f.UploadDate,
                 Labels = f.FileLabels.Select(fl => fl.Label.Name).ToList(),
                 FileType = GetFileType(f.FileName),
-                FileSize = new FileInfo(Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", f.FilePath.TrimStart('/'))).Length
+                FileSize = 0, // We'll update this after the query
+                FolderId = f.FolderId,
+                FolderName = f.Folder != null ? f.Folder.Name : null,
+                FilePath = f.FilePath
             })
             .ToListAsync();
+
+        // Update file sizes after the query
+        foreach (var file in files)
+        {
+            try
+            {
+                var fullPath = Path.Combine(_webHostEnvironment.WebRootPath, file.FilePath.TrimStart('/'));
+                if (System.IO.File.Exists(fullPath))
+                {
+                    file.FileSize = new FileInfo(fullPath).Length;
+                }
+            }
+            catch
+            {
+                file.FileSize = 0;
+            }
+        }
 
         // Add user's labels to ViewBag for the filter dropdown
         ViewBag.Labels = await _context.Labels
@@ -404,6 +451,13 @@ public class FileController : Controller
 
         // Add selected label ID to ViewBag to maintain filter state
         ViewBag.SelectedLabelId = labelId;
+        ViewBag.SearchTerm = searchTerm;
+
+        // Get folders for the current view
+        var folders = await _context.Folders
+            .Where(f => f.UserId == user.Id && f.ParentFolderId == null)
+            .ToListAsync();
+        ViewBag.Folders = folders;
 
         return View("Index", files);
     }
@@ -807,10 +861,11 @@ public class FileController : Controller
                 return RedirectToAction("Index", new { folderId = file.FolderId });
             }
         }
+        var currentFolderId = file.FolderId; // Store the current folder ID before moving
         file.FolderId = targetFolderId;
         await _context.SaveChangesAsync();
         TempData["SuccessMessage"] = "File moved successfully!";
-        return RedirectToAction("Index", new { folderId = targetFolderId });
+        return RedirectToAction("Index", new { folderId = currentFolderId }); // Return to the original folder
     }
 
     // Move Folder - GET (for modal)
@@ -897,6 +952,12 @@ public class FileController : Controller
     public async Task<IActionResult> BulkMove(List<int> fileIds, int? targetFolderId)
     {
         var user = await _userManager.GetUserAsync(User);
+        if (fileIds == null || !fileIds.Any())
+        {
+            TempData["ErrorMessage"] = "No files selected.";
+            return RedirectToAction("Index");
+        }
+
         if (targetFolderId == null)
         {
             // Show modal to select target folder
@@ -905,14 +966,31 @@ public class FileController : Controller
             ViewBag.FileIds = fileIds;
             return PartialView("_BulkMoveModal");
         }
+
+        // Verify target folder if one is selected
+        if (targetFolderId.HasValue)
+        {
+            var targetFolder = await _context.Folders.FindAsync(targetFolderId);
+            if (targetFolder == null || targetFolder.UserId != user.Id)
+            {
+                TempData["ErrorMessage"] = "Target folder not found or access denied.";
+                return RedirectToAction("Index");
+            }
+        }
+
+        // Get the current folder ID for redirection
+        var currentFolderId = ViewBag.CurrentFolderId as int?;
+
+        // Move the files
         var files = await _context.Files.Where(f => fileIds.Contains(f.Id) && f.UserId == user.Id).ToListAsync();
         foreach (var file in files)
         {
             file.FolderId = targetFolderId;
         }
         await _context.SaveChangesAsync();
-        TempData["SuccessMessage"] = $"{files.Count} file(s) moved.";
-        return RedirectToAction("Index", new { folderId = targetFolderId });
+
+        TempData["SuccessMessage"] = $"{files.Count} file(s) moved successfully.";
+        return RedirectToAction("Index", new { folderId = currentFolderId });
     }
 
     [HttpGet]
@@ -943,6 +1021,67 @@ public class FileController : Controller
             }
             ms.Position = 0;
             return File(ms.ToArray(), "application/zip", zipName);
+        }
+    }
+
+    [HttpPost]
+    [Authorize]
+    public async Task<IActionResult> BulkMoveToRoot(List<int> fileIds)
+    {
+        if (fileIds == null || !fileIds.Any())
+        {
+            TempData["ErrorMessage"] = "No files selected.";
+            return RedirectToAction("Index");
+        }
+
+        var currentFolderId = ViewBag.CurrentFolderId as int?;
+        var successCount = 0;
+        var errorCount = 0;
+
+        foreach (var fileId in fileIds)
+        {
+            var file = await _context.Files.FindAsync(fileId);
+            if (file != null && file.UserId == User.FindFirst(ClaimTypes.NameIdentifier)?.Value)
+            {
+                try
+                {
+                    file.FolderId = null; // Move to root
+                    await _context.SaveChangesAsync();
+                    successCount++;
+                }
+                catch
+                {
+                    errorCount++;
+                }
+            }
+        }
+
+        if (successCount > 0)
+        {
+            TempData["SuccessMessage"] = $"{successCount} file(s) moved to root successfully.";
+        }
+        if (errorCount > 0)
+        {
+            TempData["ErrorMessage"] = $"Failed to move {errorCount} file(s).";
+        }
+
+        return RedirectToAction("Index", new { folderId = currentFolderId });
+    }
+
+    private long GetFileSize(string filePath)
+    {
+        try
+        {
+            var fullPath = Path.Combine(_webHostEnvironment.WebRootPath, filePath.TrimStart('/'));
+            if (System.IO.File.Exists(fullPath))
+            {
+                return new FileInfo(fullPath).Length;
+            }
+            return 0;
+        }
+        catch
+        {
+            return 0;
         }
     }
 }

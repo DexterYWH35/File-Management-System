@@ -12,6 +12,37 @@
         </a>
     </div>
 
+    <!-- Tips Section -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0"><i class="bi bi-lightbulb"></i> Tips for Using Labels</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <h6 class="fw-bold mb-3"><i class="bi bi-star"></i> Best Practices</h6>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success"></i> Use consistent naming conventions</li>
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success"></i> Keep labels short and descriptive</li>
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success"></i> Create labels for different file categories</li>
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success"></i> Use labels to mark priority levels</li>
+                    </ul>
+                </div>
+                <div class="col-md-6">
+                    <h6 class="fw-bold mb-3"><i class="bi bi-info-circle"></i> How to Use Labels</h6>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><i class="bi bi-1-circle-fill text-primary"></i> Create labels below</li>
+                        <li class="mb-2"><i class="bi bi-2-circle-fill text-primary"></i> Select files and add labels from the file preview</li>
+                        <li class="mb-2"><i class="bi bi-3-circle-fill text-primary"></i> Filter files by labels using the search bar</li>
+                        <li class="mb-2"><i class="bi bi-4-circle-fill text-primary"></i> Combine multiple labels for better organization</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="alert alert-info mt-3 mb-0">
+                <i class="bi bi-lightbulb-fill"></i> <strong>Pro Tip:</strong> Use labels like "Important", "Draft", "Final", "Project A", etc., to quickly find and organize your files.
+            </div>
+        </div>
+    </div>
 
     <div class="row mb-4">
         <div class="col-md-6">
@@ -61,31 +92,19 @@
 @section Scripts {
     <script>
         function createLabel() {
-            const name = document.getElementById('newLabelName').value.trim();
-            if (!name) return;
+            const labelName = document.getElementById('newLabelName').value.trim();
+            if (!labelName) return;
 
             fetch('/Labels/Create', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
                 },
-                body: `name=${encodeURIComponent(name)}`
+                body: `name=${encodeURIComponent(labelName)}`
             })
-            .then(response => response.json())
-            .then(data => {
-                if (data.id) {
-                    const labelsList = document.getElementById('labelsList');
-                    const newLabel = document.createElement('div');
-                    newLabel.className = 'list-group-item d-flex justify-content-between align-items-center';
-                    newLabel.setAttribute('data-label-id', data.id);
-                    newLabel.innerHTML = `
-                        <span>${data.name}</span>
-                        <div>
-                            <button class="btn btn-sm btn-outline-danger" onclick="deleteLabel(${data.id})">Delete</button>
-                        </div>
-                    `;
-                    labelsList.appendChild(newLabel);
-                    document.getElementById('newLabelName').value = '';
+            .then(response => {
+                if (response.ok) {
+                    location.reload();
                 }
             });
         }
@@ -93,15 +112,16 @@
         function deleteLabel(labelId) {
             if (!confirm('Are you sure you want to delete this label?')) return;
 
-            fetch(`/Labels/Delete/${labelId}`, {
-                method: 'POST'
+            fetch('/Labels/Delete', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `id=${labelId}`
             })
             .then(response => {
                 if (response.ok) {
-                    const labelElement = document.querySelector(`[data-label-id="${labelId}"]`);
-                    if (labelElement) {
-                        labelElement.remove();
-                    }
+                    location.reload();
                 }
             });
         }
