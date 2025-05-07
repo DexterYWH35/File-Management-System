@@ -69,11 +69,15 @@
     </div>
 
     <!-- Folder Breadcrumbs -->
-    @if (breadcrumbs != null && breadcrumbs.Any())
-    {
-        <nav aria-label="breadcrumb" class="mb-3">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a asp-action="Index">Root</a></li>
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item @(ViewBag.CurrentFolderId == null ? "active" : "")">
+                <a asp-action="Index" class="@(ViewBag.CurrentFolderId == null ? "text-muted" : "")">
+                    <i class="bi bi-house"></i> Root
+                </a>
+            </li>
+            @if (breadcrumbs != null && breadcrumbs.Any())
+            {
                 @for (int i = 0; i < breadcrumbs.Count; i++)
                 {
                     var crumb = breadcrumbs[i];
@@ -88,9 +92,9 @@
                         <li class="breadcrumb-item active" aria-current="page">@crumb.Name</li>
                     }
                 }
-            </ol>
-        </nav>
-    }
+            }
+        </ol>
+    </nav>
 
     <!-- Create Folder Form -->
     <div class="mb-4">

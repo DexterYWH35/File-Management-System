@@ -1,5 +1,8 @@
-﻿@{
+﻿@using System.IO
+@inject IWebHostEnvironment WebHostEnvironment
+@{
     ViewData["Title"] = "Home - File Management System";
+    var uploadsPath = System.IO.Path.Combine(WebHostEnvironment.WebRootPath, "uploads");
 }
 
 <div class="container">
@@ -9,6 +12,8 @@
             <strong>New Feature:</strong> You can now convert image files (JPG, JPEG, PNG) and text files (.txt) to PDF directly from your file list or preview page!
         </div>
     </div>
+
+
     <!-- Hero Section -->
     <div class="text-center py-5">
         <h1 class="display-4 mb-4">Welcome to File Management System</h1>
@@ -52,6 +57,59 @@
                     <i class="bi bi-eye display-4 text-primary mb-3"></i>
                     <h3 class="card-title">Preview Support</h3>
                     <p class="card-text">Preview various file types including images, documents, and media files directly in your browser.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- File Directory Section -->
+    <div class="row mt-5 mb-5">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">File Directory</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Type</th>
+                                    <th>Size</th>
+                                    <th>Last Modified</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var file in Directory.GetFiles(uploadsPath)
+                                    .Select(f => new FileInfo(f))
+                                    .OrderByDescending(f => f.LastWriteTime)
+                                    .Take(5))
+                                {
+                                    <tr>
+                                        <td>
+                                            <i class="bi bi-file-earmark me-2"></i>
+                                            @file.Name
+                                        </td>
+                                        <td>@file.Extension</td>
+                                        <td>@(file.Length / 1024) KB</td>
+                                        <td>@file.LastWriteTime.ToString("yyyy-MM-dd HH:mm")</td>
+                                        <td>
+                                            <a href="/uploads/@file.Name" class="btn btn-sm btn-outline-primary" target="_blank">
+                                                <i class="bi bi-eye"></i> View
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="text-center mt-3">
+                        <a asp-controller="File" asp-action="Index" class="btn btn-primary">
+                            <i class="bi bi-folder"></i> View All Files
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
